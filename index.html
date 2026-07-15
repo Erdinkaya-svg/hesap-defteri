@@ -1552,7 +1552,7 @@ function renderCariHesaplar(){
   const tedarikciler = state.tedarikci.map(c=>({c, tur:'tedarikci'}));
   const musteriler = state.cari.map(c=>({c, tur:'musteri'}));
   tedarikciler.sort((a,b)=> cariBalance(b.c) - cariBalance(a.c));
-  musteriler.sort((a,b)=> a.c.name.localeCompare(b.c.name, 'tr'));
+  musteriler.sort((a,b)=> cariBalance(b.c) - cariBalance(a.c));
   const combined = [...tedarikciler, ...musteriler];
 
   const total = combined.reduce((s,x)=> s + cariBalance(x.c), 0);
@@ -1675,7 +1675,7 @@ document.getElementById('ncSave').onclick = () => {
   if(!ad){ document.getElementById('ncAd').style.borderColor = 'var(--red)'; return; }
   const id = 'c' + Date.now();
   const acilisRaw = Math.abs(toNum(document.getElementById('ncAcilis').value));
-  const acilisVal = ncAcilisYon === 'borc' ? -acilisRaw : acilisRaw;
+  const acilisVal = ncAcilisYon === 'borc' ? acilisRaw : -acilisRaw;
   const transactions = [];
   if(acilisRaw){
     transactions.push({ type:'AÇILIŞ', desc:'Açılış Fişi', amount: acilisVal, date: new Date().toISOString() });
