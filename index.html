@@ -1551,7 +1551,7 @@ function renderCariHesaplar(){
 
   const tedarikciler = state.tedarikci.map(c=>({c, tur:'tedarikci'}));
   const musteriler = state.cari.map(c=>({c, tur:'musteri'}));
-  tedarikciler.sort((a,b)=> cariBalance(a.c) - cariBalance(b.c));
+  tedarikciler.sort((a,b)=> cariBalance(b.c) - cariBalance(a.c));
   musteriler.sort((a,b)=> a.c.name.localeCompare(b.c.name, 'tr'));
   const combined = [...tedarikciler, ...musteriler];
 
