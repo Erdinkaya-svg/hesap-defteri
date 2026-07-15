@@ -64,7 +64,6 @@
     padding-bottom:40px;
   }
   .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 16px 10px 16px;}
-  .menu-label{font-size:19px;font-weight:600;color:var(--ink);}
   .shop-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.55);border-radius:20px;padding:8px 16px;}
   .shop-pill .icon{font-size:18px;}
   .shop-pill .name{font-size:15px;font-weight:700;line-height:1.1;}
@@ -461,8 +460,7 @@
 
 <div id="musteriScreen" style="display:none;">
 <div class="fixed-header">
-<div class="topbar">
-  <div class="menu-label" id="backToMenu">‹ Menü</div>
+<div class="topbar" style="justify-content:flex-end;">
   <div class="top-actions">
     <button id="openAdd" title="Ekle">＋</button>
   </div>
@@ -2864,7 +2862,6 @@ document.getElementById('anaMenu').querySelectorAll('.am-tile').forEach(tile=>{
   };
 });
 
-document.getElementById('backToMenu').onclick = showAnaMenu;
 document.getElementById('genBack').onclick = showAnaMenu;
 document.getElementById('raporBack').onclick = showAnaMenu;
 
