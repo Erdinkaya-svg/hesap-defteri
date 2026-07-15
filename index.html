@@ -452,6 +452,7 @@
     <div class="am-tile" data-mod="satislar"><div class="am-badge b-satis"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.5 2h2l2.6 12.6a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L23 6H6"/></svg></div><div class="am-label">SATIŞLAR</div></div>
     <div class="am-tile" data-mod="alislar"><div class="am-badge b-alis"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17"/><path d="M7.5 20h9"/><path d="M4 7h5.5M14.5 7H20"/><path d="M2 7l2.6 5.2a2.5 2.5 0 0 0 4.8 0L7 7"/><path d="M16.6 7l2.6 5.2a2.5 2.5 0 0 0 4.8 0L21.4 7"/></svg></div><div class="am-label">ALIŞLAR</div></div>
     <div class="am-tile" data-mod="masraflar"><div class="am-badge b-masraf"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2.2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="am-label">MASRAFLAR</div></div>
+    <div class="am-tile" data-mod="kasa"><div class="am-badge b-masraf"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19"/><circle cx="12" cy="14.2" r="2.3"/></svg></div><div class="am-label">KASA</div></div>
     <div class="am-tile" data-mod="raporlar"><div class="am-badge b-rapor"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" fill="#fff" stroke="none"/><rect x="12" y="8" width="3" height="10" fill="#fff" stroke="none"/><rect x="17" y="5" width="3" height="13" fill="#fff" stroke="none"/></svg></div><div class="am-label">FİNANSAL RAPOR</div></div>
     <div class="am-tile" data-mod="ayarlar"><div class="am-badge b-ayarlar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13a7.9 7.9 0 0 0 0-2l1.9-1.5-2-3.4-2.3.8a8 8 0 0 0-1.7-1L15 3.5h-6l-.3 2.4a8 8 0 0 0-1.7 1l-2.3-.8-2 3.4L4.6 11a7.9 7.9 0 0 0 0 2l-1.9 1.5 2 3.4 2.3-.8a8 8 0 0 0 1.7 1L9 20.5h6l.3-2.4a8 8 0 0 0 1.7-1l2.3.8 2-3.4z"/></svg></div><div class="am-label">AYARLAR</div></div>
     <div class="am-tile" data-mod="iletisim"><div class="am-badge b-iletisim"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13a2 2 0 0 1 2-2h1v5H6a2 2 0 0 1-2-2z"/><path d="M20 13a2 2 0 0 0-2-2h-1v5h1a2 2 0 0 0 2-2z"/><path d="M16 17.5v.5a2 2 0 0 1-2 2h-1.5"/></svg></div><div class="am-label">İLETİŞİM</div></div>
@@ -1154,6 +1155,25 @@
   <div class="d-list" id="raporList" style="padding:16px;"></div>
 </div>
 
+<div class="detail-screen" id="kasaScreen">
+  <div class="d-header">
+    <button class="d-back" id="kasaBack">‹</button>
+    <div class="d-title">Kasa</div>
+    <button class="d-share" id="kasaAddBtn" title="Ekle" style="visibility:visible;">＋</button>
+  </div>
+  <div style="padding:16px 16px 0 16px;">
+    <div class="cari-card">
+      <div class="cari-card-top">
+        <span class="cari-card-label">NAKİT (KASA)</span>
+        <span class="cari-card-logo"><i class="c1"></i><i class="c2"></i></span>
+      </div>
+      <div class="cari-card-balance" id="kasaToplam">0,00₺</div>
+      <div class="cari-card-name">Güncel Nakit Durumu</div>
+    </div>
+  </div>
+  <div class="d-list" id="kasaList" style="padding:16px;"></div>
+</div>
+
 <div class="receipt-overlay" id="receiptOverlay">
   <div class="receipt-card">
     <div class="receipt-head">
@@ -1250,7 +1270,57 @@ let state = JSON.parse(LS.getItem(STORAGE_KEY) || 'null') || {
         {type:'AÇILIŞ', desc:'Açılış Fişi', amount:2960.00, date:'2026-01-01T00:00:00'}
       ] },
     { id:'safplast', name: 'Saf Plast', transactions: [
-        {type:'AÇILIŞ', desc:'Açılış Fişi', amount:102645.00, date:'2026-01-01T00:00:00'}
+        {type:'AÇILIŞ', desc:'Açılış (önceki bakiye)', amount:-16500, date:'2025-09-01T00:00:00'},
+        {type:'ALIŞ', desc:'Best Tatvan', amount:9075, date:'2025-09-09T21:38:00'},
+        {type:'ÖDEME', desc:'', amount:15000, date:'2025-09-17T13:20:00'},
+        {type:'ALIŞ', desc:'Cihan', amount:22050, date:'2025-09-24T15:53:00'},
+        {type:'ALIŞ', desc:'', amount:9475, date:'2025-09-30T22:43:00'},
+        {type:'ÖDEME', desc:'', amount:2100, date:'2025-10-10T13:56:00'},
+        {type:'ÖDEME', desc:'', amount:10000, date:'2025-10-13T13:24:00'},
+        {type:'ALIŞ', desc:'PERTEK', amount:6600, date:'2025-10-14T03:50:00'},
+        {type:'ÖDEME', desc:'Yarım altın', amount:20000, date:'2025-10-17T15:55:00'},
+        {type:'ÖDEME', desc:'', amount:6600, date:'2025-10-17T15:57:00'},
+        {type:'ÖDEME', desc:'', amount:15000, date:'2025-10-20T18:30:00'},
+        {type:'ALIŞ', desc:'1000 normal', amount:4400, date:'2025-10-20T18:30:30'},
+        {type:'ALIŞ', desc:'500 süngerli x4.8', amount:2400, date:'2025-10-20T18:31:00'},
+        {type:'ÖDEME', desc:'', amount:1800, date:'2025-10-20T18:33:00'},
+        {type:'ALIŞ', desc:'Drysan 2500 ad x 4.4', amount:11000, date:'2025-10-23T19:21:00'},
+        {type:'ALIŞ', desc:'Nişantaşı', amount:7200, date:'2025-10-27T15:10:00'},
+        {type:'ÖDEME', desc:'', amount:10200, date:'2025-11-08T01:37:00'},
+        {type:'ÖDEME', desc:'', amount:5000, date:'2025-11-10T11:20:00'},
+        {type:'ALIŞ', desc:'Şanal', amount:7200, date:'2025-11-10T19:52:00'},
+        {type:'ÖDEME', desc:'Alinçe çek Samsun çeki', amount:20000, date:'2025-11-21T20:01:00'},
+        {type:'ÖDEME', desc:'Alinçe çek', amount:27000, date:'2025-11-21T21:47:00'},
+        {type:'ALIŞ', desc:'Best', amount:9960, date:'2025-11-28T22:30:00'},
+        {type:'ALIŞ', desc:'Alinçe KDV', amount:9800, date:'2025-12-04T06:25:00'},
+        {type:'ALIŞ', desc:'', amount:26000, date:'2025-12-09T19:55:00'},
+        {type:'ÖDEME', desc:'', amount:8960, date:'2025-12-16T16:30:00'},
+        {type:'ALIŞ', desc:'', amount:19700, date:'2025-12-21T10:00:00'},
+        {type:'ÖDEME', desc:'', amount:19700, date:'2025-12-21T10:01:00'},
+        {type:'ALIŞ', desc:'Pertek', amount:6600, date:'2026-01-24T21:22:00'},
+        {type:'ALIŞ', desc:'Drysan', amount:11000, date:'2026-01-24T21:23:00'},
+        {type:'ÖDEME', desc:'', amount:10000, date:'2026-01-24T21:23:30'},
+        {type:'ALIŞ', desc:'Ritz carlton', amount:6600, date:'2026-02-03T11:56:00'},
+        {type:'ÖDEME', desc:'', amount:4000, date:'2026-02-10T17:33:00'},
+        {type:'ALIŞ', desc:'Nişantaşı 1500 süngerli', amount:8250, date:'2026-03-13T15:44:00'},
+        {type:'ALIŞ', desc:'Şanal 1500 süngerli', amount:8250, date:'2026-03-13T15:45:00'},
+        {type:'ÖDEME', desc:'', amount:135000, date:'2026-03-27T19:20:00'},
+        {type:'ALIŞ', desc:'Uğur k tmz TATVAN', amount:5000, date:'2026-03-30T19:29:00'},
+        {type:'TAHSİLAT', desc:'KDV', amount:20300, date:'2026-03-31T20:08:00'},
+        {type:'ALIŞ', desc:'Greatdry', amount:9100, date:'2026-04-07T17:16:00'},
+        {type:'ALIŞ', desc:'', amount:9125, date:'2026-04-13T18:04:00'},
+        {type:'ÖDEME', desc:'Alinçe çek', amount:27500, date:'2026-05-07T21:01:00'},
+        {type:'ÖDEME', desc:'Alinçe çek', amount:27500, date:'2026-05-07T21:01:30'},
+        {type:'ALIŞ', desc:'PERTEK Ritz Peköz Nişantaşı', amount:41650, date:'2026-05-14T21:00:00'},
+        {type:'ALIŞ', desc:'Cemal kuru temizleme', amount:12750, date:'2026-06-04T11:23:00'},
+        {type:'ÖDEME', desc:'Dengeleme', amount:7925, date:'2026-06-04T11:24:00'},
+        {type:'ALIŞ', desc:'Drysan', amount:13750, date:'2026-06-09T10:36:00'},
+        {type:'ALIŞ', desc:'Best TATVAN', amount:14375, date:'2026-06-18T13:47:00'},
+        {type:'ÖDEME', desc:'', amount:150000, date:'2026-06-18T19:50:00'},
+        {type:'ALIŞ', desc:'Alinçe kdv', amount:36680, date:'2026-06-19T10:51:00'},
+        {type:'ALIŞ', desc:'Nişantaşı greatdry', amount:19900, date:'2026-07-07T15:29:00'},
+        {type:'ALIŞ', desc:'Cihan kuru temizleme', amount:34000, date:'2026-07-07T15:54:00'},
+        {type:'ALIŞ', desc:'300 mandalı x 6.5 PERTEK', amount:1950, date:'2026-07-08T23:40:00'}
       ] }
   ],
   tedarikci: [
@@ -2142,6 +2212,7 @@ document.getElementById('saveBtn').onclick = () => {
   state.transactions.push({ desc, amount, cat, type: currentType, date: new Date().toISOString() });
   state.cash += currentType === 'income' ? amount : -amount;
   save(); render(); closeModal();
+  if(kasaScreen.classList.contains('show')) renderKasa();
 };
 
 document.getElementById('toggleList').onclick = function(){
@@ -2757,6 +2828,7 @@ const anaMenu = document.getElementById('anaMenu');
 const musteriScreen = document.getElementById('musteriScreen');
 const genScreen = document.getElementById('genScreen');
 const raporScreen = document.getElementById('raporScreen');
+const kasaScreen = document.getElementById('kasaScreen');
 
 // Tüm üst düzey ekranları tek noktadan, garanti şekilde kapatır.
 // Böylece iki ekranın aynı anda görünür kalması mümkün olmaz.
@@ -2787,6 +2859,7 @@ function hideAllScreens(){
   document.getElementById('siparisListScreen').classList.remove('show');
   document.getElementById('siparisDetayScreen').classList.remove('show');
   document.getElementById('ayarlarScreen').classList.remove('show');
+  kasaScreen.classList.remove('show');
   document.getElementById('anaMenuFloatBtn').style.display = 'flex';
   nudge();
 }
@@ -2841,6 +2914,11 @@ document.getElementById('anaMenu').querySelectorAll('.am-tile').forEach(tile=>{
       nudge();
     } else if(mod === 'iletisim'){
       document.getElementById('iletisimOverlay').classList.add('show');
+    } else if(mod === 'kasa'){
+      renderKasa();
+      hideAllScreens();
+      kasaScreen.classList.add('show');
+      nudge();
     } else if(mod === 'urunler'){
       renderUrunler();
       hideAllScreens();
@@ -2864,6 +2942,44 @@ document.getElementById('anaMenu').querySelectorAll('.am-tile').forEach(tile=>{
 
 document.getElementById('genBack').onclick = showAnaMenu;
 document.getElementById('raporBack').onclick = showAnaMenu;
+document.getElementById('kasaBack').onclick = showAnaMenu;
+document.getElementById('kasaAddBtn').onclick = openModal;
+
+// ---------- Kasa (nakit hareketleri) — tüm carilerin ÖDEME/TAHSİLAT hareketleri
+// ile genel Gelir/Gider kayıtlarının birleşik, tarihe göre sıralı görünümü.
+// state.cash'e hiç dokunmaz; sadece mevcut veriyi okuyup listeler. ----------
+function renderKasa(){
+  document.getElementById('kasaToplam').textContent = fmt(state.cash);
+  const rows = [];
+  [...state.cari, ...state.tedarikci].forEach(c=>{
+    (c.transactions||[]).forEach(t=>{
+      if(t.type === 'ÖDEME' || t.type === 'TAHSİLAT'){
+        rows.push({ date: t.date, type: t.type, desc: t.desc, amount: Math.abs(t.amount), hesap: c.name });
+      }
+    });
+  });
+  (state.transactions||[]).forEach(t=>{
+    rows.push({ date: t.date, type: t.type === 'income' ? 'TAHSİLAT' : 'ÖDEME', desc: t.desc || (t.cat||''), amount: Math.abs(t.amount), hesap: 'Genel' });
+  });
+  rows.sort((a,b)=> new Date(b.date) - new Date(a.date));
+  const list = document.getElementById('kasaList');
+  list.innerHTML = rows.length ? rows.map(r=>{
+    const neg = r.type === 'ÖDEME';
+    const arrow = neg ? '←' : '→';
+    const dateStr = new Date(r.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'})
+      + ', ' + new Date(r.date).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+    const [main, cents] = fmtPlain(neg ? -r.amount : r.amount).split(',');
+    return `
+      <div class="tx-row">
+        <div class="tx-left">
+          <div class="tx-type ${neg ? 'neg' : 'pos'}">${r.type} <span class="tx-date">${dateStr}</span></div>
+          <div class="tx-transfer">${arrow} ${r.hesap}</div>
+          ${r.desc ? `<div class="tx-desc">${r.desc}</div>` : ''}
+        </div>
+        <div class="tx-amount ${neg ? 'neg' : ''}">${main}<span class="cents">,${cents}</span></div>
+      </div>`;
+  }).join('') : '<div class="empty-tx">Henüz nakit hareketi yok</div>';
+}
 
 // ---------- Jenerik Modül Ekranı (Ürünler / Satışlar / Alışlar / Masraflar / Stoklar / Kataloglar / Takvim) ----------
 const MOD_LABELS = { urunler:'ÜRÜNLER', satislar:'SATIŞLAR', alislar:'ALIŞLAR', masraflar:'MASRAFLAR', stoklar:'STOKLAR', kataloglar:'KATALOGLAR', takvim:'TAKVİM' };
