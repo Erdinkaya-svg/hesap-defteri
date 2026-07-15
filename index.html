@@ -25,7 +25,8 @@
   #anaMenu{min-height:100vh;background:linear-gradient(160deg,#0b1a3d 0%, #1c3566 45%, #0f2350 100%);padding:6px 18px 26px 18px;display:flex;flex-direction:column;justify-content:center;}
   .am-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 6px;margin-top:-110px;}
   .am-tile{display:flex;flex-direction:column;align-items:center;gap:11px;cursor:pointer;}
-  .am-badge{width:91px;height:91px;border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.18);}
+  .am-badge{width:91px;height:91px;border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.18);position:relative;}
+  .am-badge-count{position:absolute;top:-6px;right:-6px;min-width:24px;height:24px;padding:0 6px;border-radius:12px;background:#e03e3e;color:#fff;font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid #0b1a3d;}
   .am-badge svg{width:41px;height:41px;}
   .ayar-badge{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 8px rgba(0,0,0,.18);}
   .ayar-badge svg{width:24px;height:24px;}
@@ -437,15 +438,22 @@
 </head>
 <body>
 
+<button id="anaMenuFloatBtn" style="display:none;position:fixed;right:20px;bottom:28px;width:58px;height:58px;border-radius:50%;background:#1c3566;border:none;box-shadow:0 6px 16px rgba(0,0,0,.35);z-index:500;align-items:center;justify-content:center;cursor:pointer;">
+  <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 4a8 8 0 1 0 0 16"/>
+    <path d="M3 12h11M9 7l5 5-5 5"/>
+  </svg>
+</button>
+
 <div id="anaMenu">
   <div class="am-grid" id="amGrid">
     <div class="am-tile" data-mod="tedarikci"><div class="am-badge b-cari"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M5.3 16c.5-1.8 1.8-2.7 3.2-2.7s2.7.9 3.2 2.7"/><path d="M15 9.5h4M15 13h4"/></svg></div><div class="am-label">CARİ HESAPLAR</div></div>
+    <div class="am-tile" data-mod="siparisler"><div class="am-badge b-siparis"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1z"/><path d="M8.5 11.5h7M8.5 14.5h7M8.5 17.5h4.5"/></svg><div class="am-badge-count" id="amSiparisBadge" style="display:none;"></div></div><div class="am-label">SİPARİŞLER</div></div>
     <div class="am-tile" data-mod="urunler"><div class="am-badge b-urun"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></div><div class="am-label">STOKLAR</div></div>
     <div class="am-tile" data-mod="satislar"><div class="am-badge b-satis"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.5 2h2l2.6 12.6a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L23 6H6"/></svg></div><div class="am-label">SATIŞLAR</div></div>
     <div class="am-tile" data-mod="alislar"><div class="am-badge b-alis"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17"/><path d="M7.5 20h9"/><path d="M4 7h5.5M14.5 7H20"/><path d="M2 7l2.6 5.2a2.5 2.5 0 0 0 4.8 0L7 7"/><path d="M16.6 7l2.6 5.2a2.5 2.5 0 0 0 4.8 0L21.4 7"/></svg></div><div class="am-label">ALIŞLAR</div></div>
     <div class="am-tile" data-mod="masraflar"><div class="am-badge b-masraf"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2.2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="am-label">MASRAFLAR</div></div>
     <div class="am-tile" data-mod="raporlar"><div class="am-badge b-rapor"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" fill="#fff" stroke="none"/><rect x="12" y="8" width="3" height="10" fill="#fff" stroke="none"/><rect x="17" y="5" width="3" height="13" fill="#fff" stroke="none"/></svg></div><div class="am-label">FİNANSAL RAPOR</div></div>
-    <div class="am-tile" data-mod="siparisler"><div class="am-badge b-siparis"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6a1 1 0 0 1 1 1v1H8V4a1 1 0 0 1 1-1z"/><path d="M8.5 11.5h7M8.5 14.5h7M8.5 17.5h4.5"/></svg></div><div class="am-label">SİPARİŞLER</div></div>
     <div class="am-tile" data-mod="ayarlar"><div class="am-badge b-ayarlar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13a7.9 7.9 0 0 0 0-2l1.9-1.5-2-3.4-2.3.8a8 8 0 0 0-1.7-1L15 3.5h-6l-.3 2.4a8 8 0 0 0-1.7 1l-2.3-.8-2 3.4L4.6 11a7.9 7.9 0 0 0 0 2l-1.9 1.5 2 3.4 2.3-.8a8 8 0 0 0 1.7 1L9 20.5h6l.3-2.4a8 8 0 0 0 1.7-1l2.3.8 2-3.4z"/></svg></div><div class="am-label">AYARLAR</div></div>
     <div class="am-tile" data-mod="iletisim"><div class="am-badge b-iletisim"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13a2 2 0 0 1 2-2h1v5H6a2 2 0 0 1-2-2z"/><path d="M20 13a2 2 0 0 0-2-2h-1v5h1a2 2 0 0 0 2-2z"/><path d="M16 17.5v.5a2 2 0 0 1-2 2h-1.5"/></svg></div><div class="am-label">İLETİŞİM</div></div>
   </div>
@@ -2781,15 +2789,31 @@ function hideAllScreens(){
   document.getElementById('siparisListScreen').classList.remove('show');
   document.getElementById('siparisDetayScreen').classList.remove('show');
   document.getElementById('ayarlarScreen').classList.remove('show');
+  document.getElementById('anaMenuFloatBtn').style.display = 'flex';
   nudge();
+}
+
+function updateSiparisBadge(){
+  const badge = document.getElementById('amSiparisBadge');
+  if(!badge) return;
+  const count = (state.siparisFisleri||[]).filter(f=>!f.tamamlandi).length;
+  if(count > 0){
+    badge.textContent = count;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 function showAnaMenu(){
   hideAllScreens();
   anaMenu.style.display = 'flex';
   anaMenu.style.visibility = 'visible';
+  document.getElementById('anaMenuFloatBtn').style.display = 'none';
+  updateSiparisBadge();
   nudge();
 }
+document.getElementById('anaMenuFloatBtn').onclick = () => showAnaMenu();
 
 document.getElementById('anaMenu').querySelectorAll('.am-tile').forEach(tile=>{
   tile.onclick = () => {
