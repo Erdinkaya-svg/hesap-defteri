@@ -780,6 +780,16 @@
   </div>
 </div>
 
+<div class="overlay" id="kasaDuzenleOverlay">
+  <div class="modal" style="padding-bottom:16px;padding-top:4px;">
+    <h3 id="kasaDuzenleTitle" style="margin-bottom:14px;">Hareketi Düzenle</h3>
+    <input type="text" inputmode="decimal" id="kasaDuzenleAmount" placeholder="0,00" style="width:100%;box-sizing:border-box;margin:14px 0 12px 0;padding:18px 12px;font-size:24px;font-weight:700;text-align:center;border:1px solid var(--line);border-radius:12px;color:var(--ink);">
+    <input type="text" id="kasaDuzenleDesc" placeholder="Açıklama (opsiyonel)" style="width:100%;box-sizing:border-box;margin:0 0 22px 0;padding:14px 12px;font-size:15px;border:1px solid var(--line);border-radius:12px;color:var(--ink);">
+    <button id="kasaDuzenleSave" style="width:100%;padding:14px 0;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;">Kaydet</button>
+    <button id="kasaDuzenleCancel" style="margin-top:8px;width:100%;padding:14px 0;border:none;border-radius:12px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">İptal</button>
+  </div>
+</div>
+
 <div class="overlay" id="confirmDeleteOverlay" style="z-index:90;">
   <div class="modal" style="padding-bottom:14px;text-align:center;">
     <h3 id="confirmDeleteTitle" style="margin-bottom:6px;">Bu hareketi sil</h3>
@@ -2948,38 +2958,102 @@ document.getElementById('kasaAddBtn').onclick = openModal;
 // ---------- Kasa (nakit hareketleri) — tüm carilerin ÖDEME/TAHSİLAT hareketleri
 // ile genel Gelir/Gider kayıtlarının birleşik, tarihe göre sıralı görünümü.
 // state.cash'e hiç dokunmaz; sadece mevcut veriyi okuyup listeler. ----------
+let kasaRows = [];
 function renderKasa(){
   document.getElementById('kasaToplam').textContent = fmt(state.cash);
   const rows = [];
   [...state.cari, ...state.tedarikci].forEach(c=>{
     (c.transactions||[]).forEach(t=>{
       if(t.type === 'ÖDEME' || t.type === 'TAHSİLAT'){
-        rows.push({ date: t.date, type: t.type, desc: t.desc, amount: Math.abs(t.amount), hesap: c.name });
+        rows.push({ date: t.date, type: t.type, desc: t.desc, amount: Math.abs(t.amount), hesap: c.name, _t: t, _arr: c.transactions, _kind: 'cari' });
       }
     });
   });
   (state.transactions||[]).forEach(t=>{
-    rows.push({ date: t.date, type: t.type === 'income' ? 'TAHSİLAT' : 'ÖDEME', desc: t.desc || (t.cat||''), amount: Math.abs(t.amount), hesap: 'Genel' });
+    rows.push({ date: t.date, type: t.type === 'income' ? 'TAHSİLAT' : 'ÖDEME', desc: t.desc || (t.cat||''), amount: Math.abs(t.amount), hesap: 'Genel', _t: t, _arr: state.transactions, _kind: 'genel' });
   });
   rows.sort((a,b)=> new Date(b.date) - new Date(a.date));
+  kasaRows = rows;
   const list = document.getElementById('kasaList');
-  list.innerHTML = rows.length ? rows.map(r=>{
+  list.innerHTML = rows.length ? rows.map((r, idx)=>{
     const neg = r.type === 'ÖDEME';
     const arrow = neg ? '←' : '→';
     const dateStr = new Date(r.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'})
       + ', ' + new Date(r.date).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
     const [main, cents] = fmtPlain(neg ? -r.amount : r.amount).split(',');
     return `
-      <div class="tx-row">
-        <div class="tx-left">
-          <div class="tx-type ${neg ? 'neg' : 'pos'}">${r.type} <span class="tx-date">${dateStr}</span></div>
-          <div class="tx-transfer">${arrow} ${r.hesap}</div>
-          ${r.desc ? `<div class="tx-desc">${r.desc}</div>` : ''}
+      <div class="swipe-wrap">
+        <div class="swipe-actions">
+          <button class="swipe-btn sip-list-duzenle kasa-duzenle" data-idx="${idx}">Değiştir</button>
+          <button class="swipe-btn sip-list-sil kasa-sil" data-idx="${idx}">Sil</button>
         </div>
-        <div class="tx-amount ${neg ? 'neg' : ''}">${main}<span class="cents">,${cents}</span></div>
+        <div class="tx-row swipe-content" data-idx="${idx}">
+          <div class="tx-left">
+            <div class="tx-type ${neg ? 'neg' : 'pos'}">${r.type} <span class="tx-date">${dateStr}</span></div>
+            <div class="tx-transfer">${arrow} ${r.hesap}</div>
+            ${r.desc ? `<div class="tx-desc">${r.desc}</div>` : ''}
+          </div>
+          <div class="tx-amount ${neg ? 'neg' : ''}">${main}<span class="cents">,${cents}</span></div>
+        </div>
       </div>`;
   }).join('') : '<div class="empty-tx">Henüz nakit hareketi yok</div>';
+
+  list.querySelectorAll('.kasa-duzenle').forEach(btn=>{
+    btn.onclick = (e) => { e.stopPropagation(); openKasaDuzenle(parseInt(btn.dataset.idx, 10)); };
+  });
+  list.querySelectorAll('.kasa-sil').forEach(btn=>{
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const r = kasaRows[parseInt(btn.dataset.idx, 10)];
+      openConfirm('Bu hareketi sil', 'Bu işlem geri alınamaz. Emin misin?', () => {
+        const i = r._arr.indexOf(r._t);
+        if(i !== -1){
+          r._arr.splice(i, 1);
+          if(r._t.type === 'TAHSİLAT') state.cash -= r._t.amount;
+          if(r._t.type === 'ÖDEME') state.cash += r._t.amount;
+          if(r._t.type === 'income') state.cash -= r._t.amount;
+          if(r._t.type === 'expense') state.cash += r._t.amount;
+          save();
+          renderKasa();
+          render();
+        }
+      });
+    };
+  });
+  enableSwipeRows(list);
 }
+
+let kasaDuzenleIdx = null;
+function openKasaDuzenle(idx){
+  kasaDuzenleIdx = idx;
+  const r = kasaRows[idx];
+  document.getElementById('kasaDuzenleTitle').textContent = r.type + ' — ' + r.hesap;
+  document.getElementById('kasaDuzenleAmount').value = fmtPlain(r.amount);
+  document.getElementById('kasaDuzenleDesc').value = r.desc || '';
+  document.getElementById('kasaDuzenleOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('kasaDuzenleAmount').focus(), 50);
+}
+document.getElementById('kasaDuzenleCancel').onclick = () => { document.getElementById('kasaDuzenleOverlay').classList.remove('show'); };
+document.getElementById('kasaDuzenleOverlay').onclick = (e) => {
+  if(e.target === document.getElementById('kasaDuzenleOverlay')) document.getElementById('kasaDuzenleOverlay').classList.remove('show');
+};
+document.getElementById('kasaDuzenleSave').onclick = () => {
+  if(kasaDuzenleIdx === null) return;
+  const r = kasaRows[kasaDuzenleIdx];
+  const newAmount = parseFloat(document.getElementById('kasaDuzenleAmount').value.replace(',', '.'));
+  const newDesc = document.getElementById('kasaDuzenleDesc').value.trim();
+  if(!newAmount || newAmount <= 0) return;
+  const oldAmount = r._t.amount;
+  r._t.amount = newAmount;
+  if('desc' in r._t) r._t.desc = newDesc;
+  const delta = newAmount - oldAmount;
+  if(r._t.type === 'TAHSİLAT' || r._t.type === 'income') state.cash += delta;
+  if(r._t.type === 'ÖDEME' || r._t.type === 'expense') state.cash -= delta;
+  save();
+  document.getElementById('kasaDuzenleOverlay').classList.remove('show');
+  renderKasa();
+  render();
+};
 
 // ---------- Jenerik Modül Ekranı (Ürünler / Satışlar / Alışlar / Masraflar / Stoklar / Kataloglar / Takvim) ----------
 const MOD_LABELS = { urunler:'ÜRÜNLER', satislar:'SATIŞLAR', alislar:'ALIŞLAR', masraflar:'MASRAFLAR', stoklar:'STOKLAR', kataloglar:'KATALOGLAR', takvim:'TAKVİM' };
