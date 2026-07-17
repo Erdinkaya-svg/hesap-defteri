@@ -207,6 +207,22 @@
   .tx-row{padding:14px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;cursor:pointer;}
   .rapor-section-title{margin:18px 0 4px 0;font-size:13px;font-weight:800;color:#7a8590;text-transform:uppercase;letter-spacing:.03em;}
   #raporList, #kasaList{margin-bottom:90px;}
+  .kasa-ay-group{border-bottom:1px solid var(--line);}
+  .kasa-ay-header{display:flex;justify-content:space-between;align-items:center;padding:14px 0;cursor:pointer;}
+  .kasa-ay-label{font-weight:700;font-size:15px;color:#1c3566;text-transform:capitalize;display:flex;align-items:center;gap:6px;}
+  .kasa-ay-chevron{font-size:12px;color:#8a94a3;}
+  .kasa-ay-toplam{font-weight:700;font-size:15px;color:#1f8a54;}
+  .kasa-ay-toplam.neg{color:#c94c4c;}
+  .kasa-ay-body{padding-left:2px;}
+  .kasa-ay-body.hidden{display:none;}
+  .glass-fab{
+    background: linear-gradient(135deg, rgba(255,255,255,.32), rgba(255,255,255,.06) 40%, rgba(28,53,102,.35));
+    background-color: rgba(28,53,102,.42);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255,255,255,.55);
+    box-shadow: 0 8px 22px rgba(0,0,0,.32), inset 0 1px 1px rgba(255,255,255,.6), inset 0 -6px 10px rgba(0,0,0,.12);
+  }
   .tx-row.selected{background:var(--accent-soft);margin:0 -16px;padding:14px 16px;}
   .tx-row.acilis-row{background:#fbf9df;margin:0 -16px;padding:14px 16px;}
   .tx-left{min-width:0;}
@@ -452,10 +468,11 @@
 </head>
 <body>
 
-<button id="anaMenuFloatBtn" style="display:none;position:fixed;right:20px;bottom:28px;width:58px;height:58px;border-radius:50%;background:rgba(28,53,102,0.55);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);border:1px solid rgba(255,255,255,0.35);box-shadow:0 6px 18px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.25);z-index:500;align-items:center;justify-content:center;cursor:pointer;">
+<button id="anaMenuFloatBtn" class="glass-fab" style="display:none;position:fixed;right:20px;bottom:28px;width:58px;height:58px;border-radius:50%;z-index:500;align-items:center;justify-content:center;cursor:pointer;">
   <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M9 4a8 8 0 1 0 0 16"/>
     <path d="M3 12h11M9 7l5 5-5 5"/>
+
   </svg>
 </button>
 
@@ -3004,23 +3021,80 @@ function renderKasa(){
     rows.push({ date: t.date, type: t.type === 'income' ? 'TAHSİLAT' : 'ÖDEME', desc: t.desc || (t.cat||''), amount: Math.abs(t.amount), hesap: 'Genel' });
   });
   rows.sort((a,b)=> new Date(b.date) - new Date(a.date));
+
   const list = document.getElementById('kasaList');
-  list.innerHTML = rows.length ? rows.map(r=>{
+  if(!rows.length){
+    list.innerHTML = '<div class="empty-tx">Henüz nakit hareketi yok</div>';
+    return;
+  }
+
+  const keyOf = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  const groups = new Map();
+
+  // Son 12 ayı her zaman göster (hareketi olmasa da), en yeni ay en üstte
+  const now = new Date();
+  for(let i=0;i<12;i++){
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = keyOf(d);
+    groups.set(key, { label: d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'}), rows: [], total: 0 });
+  }
+  // 12 aydan eski hareketler varsa veri kaybolmasın diye onlar için de ayrı grup aç
+  rows.forEach(r=>{
+    const d = new Date(r.date);
+    const key = keyOf(d);
+    if(!groups.has(key)){
+      groups.set(key, { label: d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'}), rows: [], total: 0 });
+    }
+  });
+
+  rows.forEach(r=>{
+    const d = new Date(r.date);
+    const key = keyOf(d);
+    const g = groups.get(key);
     const neg = r.type === 'ÖDEME';
-    const arrow = neg ? '←' : '→';
-    const dateStr = new Date(r.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'})
-      + ', ' + new Date(r.date).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
-    const [main, cents] = fmtPlain(neg ? -r.amount : r.amount).split(',');
+    g.total += neg ? -r.amount : r.amount;
+    g.rows.push(r);
+  });
+
+  const sortedKeys = [...groups.keys()].sort((a,b)=> b.localeCompare(a));
+
+  list.innerHTML = sortedKeys.map(key=>{
+    const g = groups.get(key);
+    const rowsHtml = g.rows.length ? g.rows.map(r=>{
+      const neg = r.type === 'ÖDEME';
+      const arrow = neg ? '←' : '→';
+      const dateStr = new Date(r.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'})
+        + ', ' + new Date(r.date).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+      const [main, cents] = fmtPlain(neg ? -r.amount : r.amount).split(',');
+      return `
+        <div class="tx-row">
+          <div class="tx-left">
+            <div class="tx-type ${neg ? 'neg' : 'pos'}">${r.type} <span class="tx-date">${dateStr}</span></div>
+            <div class="tx-transfer">${arrow} ${r.hesap}</div>
+            ${r.desc ? `<div class="tx-desc">${r.desc}</div>` : ''}
+          </div>
+          <div class="tx-amount ${neg ? 'neg' : ''}">${main}<span class="cents">,${cents}</span></div>
+        </div>`;
+    }).join('') : '<div class="empty-tx">Bu ay hareket yok</div>';
+    const [gMain, gCents] = fmtPlain(g.total).split(',');
     return `
-      <div class="tx-row">
-        <div class="tx-left">
-          <div class="tx-type ${neg ? 'neg' : 'pos'}">${r.type} <span class="tx-date">${dateStr}</span></div>
-          <div class="tx-transfer">${arrow} ${r.hesap}</div>
-          ${r.desc ? `<div class="tx-desc">${r.desc}</div>` : ''}
+      <div class="kasa-ay-group">
+        <div class="kasa-ay-header" data-key="${key}">
+          <div class="kasa-ay-label"><span class="kasa-ay-chevron">▾</span> ${g.label}</div>
+          <div class="kasa-ay-toplam ${g.total<0?'neg':''}">${gMain}<span class="cents">,${gCents}</span></div>
         </div>
-        <div class="tx-amount ${neg ? 'neg' : ''}">${main}<span class="cents">,${cents}</span></div>
+        <div class="kasa-ay-body hidden" id="kasaAy-${key}">${rowsHtml}</div>
       </div>`;
-  }).join('') : '<div class="empty-tx">Henüz nakit hareketi yok</div>';
+  }).join('');
+
+  list.querySelectorAll('.kasa-ay-header').forEach(header=>{
+    header.onclick = () => {
+      const key = header.dataset.key;
+      const body = document.getElementById('kasaAy-' + key);
+      body.classList.toggle('hidden');
+      header.querySelector('.kasa-ay-chevron').textContent = body.classList.contains('hidden') ? '▾' : '▴';
+    };
+  });
 }
 
 // ---------- Jenerik Modül Ekranı (Ürünler / Satışlar / Alışlar / Masraflar / Stoklar / Kataloglar / Takvim) ----------
