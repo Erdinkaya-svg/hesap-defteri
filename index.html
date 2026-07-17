@@ -184,6 +184,13 @@
   .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600;}
   .field input, .field select{width:100%;padding:12px 12px;border-radius:10px;border:1px solid #dfe5e7;font-size:15px;background:#fbfcfc;}
   .modal-actions{display:flex;gap:10px;margin-top:8px;}
+  .kat-row{display:flex;gap:8px;align-items:center;}
+  .kat-row select{flex:1;}
+  .kat-add-btn{flex-shrink:0;width:38px;height:38px;border-radius:10px;border:none;background:#1f7a4d;color:#fff;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .kat-new-row{display:flex;gap:8px;margin-top:8px;}
+  .kat-new-row.hidden{display:none;}
+  .kat-new-row input{flex:1;border:1px solid #d5dade;border-radius:10px;padding:9px 12px;font-size:15px;}
+  .kat-new-save{flex-shrink:0;border:none;background:#2e56c9;color:#fff;border-radius:10px;padding:0 16px;font-weight:700;}
   .modal-actions button{flex:1;padding:13px 0;border-radius:12px;border:none;font-size:15px;font-weight:700;cursor:pointer;}
   .btn-cancel{background:#eef1f2;color:var(--ink);}
   .btn-save{background:var(--accent);color:#fff;}
@@ -527,13 +534,20 @@
     </div>
     <div class="field">
       <label>Kategori</label>
-      <select id="fCat">
-        <option>Aidat</option>
-        <option>Bakım / Onarım</option>
-        <option>Personel</option>
-        <option>Fatura</option>
-        <option>Diğer</option>
-      </select>
+      <div class="kat-row">
+        <select id="fCat">
+          <option>Aidat</option>
+          <option>Bakım / Onarım</option>
+          <option>Personel</option>
+          <option>Fatura</option>
+          <option>Diğer</option>
+        </select>
+        <button type="button" class="kat-add-btn" id="katAddBtn">＋</button>
+      </div>
+      <div class="kat-new-row hidden" id="katNewRow">
+        <input type="text" id="katNewInput" placeholder="Yeni masraf kalemi adı">
+        <button type="button" class="kat-new-save" id="katNewSave">Ekle</button>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" id="cancelBtn">Vazgeç</button>
@@ -1343,8 +1357,10 @@ let state = JSON.parse(LS.getItem(STORAGE_KEY) || 'null') || {
   ],
   modules: { urunler:[], satislar:[], alislar:[], masraflar:[], stoklar:[], kataloglar:[], takvim:[] },
   stokKartlari: [],
-  transactions: []
+  transactions: [],
+  kasaKategoriler: []
 };
+if(!state.kasaKategoriler) state.kasaKategoriler = [];
 if(!state.sayaclar) state.sayaclar = { alis:0, satis:0, stok:0 };
 if(state.sayaclar.stok === undefined) state.sayaclar.stok = 0;
 if(state.sayaclar.siparis === undefined) state.sayaclar.siparis = 0;
@@ -2189,6 +2205,34 @@ document.getElementById('siparisListSearch').oninput = (e) => {
 
 document.getElementById('openAdd2').onclick = openModal;
 document.getElementById('cancelBtn').onclick = closeModal;
+
+function renderKasaKategoriler(){
+  const select = document.getElementById('fCat');
+  select.querySelectorAll('option[data-custom]').forEach(o=>o.remove());
+  (state.kasaKategoriler||[]).forEach(k=>{
+    const opt = document.createElement('option');
+    opt.textContent = k;
+    opt.dataset.custom = '1';
+    select.insertBefore(opt, select.querySelector('option:last-child'));
+  });
+}
+renderKasaKategoriler();
+
+document.getElementById('katAddBtn').onclick = () => {
+  document.getElementById('katNewRow').classList.toggle('hidden');
+  document.getElementById('katNewInput').focus();
+};
+document.getElementById('katNewSave').onclick = () => {
+  const val = document.getElementById('katNewInput').value.trim();
+  if(!val) return;
+  if(!state.kasaKategoriler) state.kasaKategoriler = [];
+  if(!state.kasaKategoriler.includes(val)) state.kasaKategoriler.push(val);
+  save();
+  renderKasaKategoriler();
+  document.getElementById('fCat').value = val;
+  document.getElementById('katNewInput').value = '';
+  document.getElementById('katNewRow').classList.add('hidden');
+};
 
 document.getElementById('segIncome').onclick = () => {
   currentType = 'income';
