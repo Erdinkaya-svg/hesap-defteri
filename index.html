@@ -3203,8 +3203,8 @@ function renderRapor(){
   });
   const rows = [
     ['Nakit (Kasa)', state.cash],
-    ['Müşteri (Borç / Alacak)', musteriToplam],
-    ['Tedarikçi (Borç / Alacak)', tedarikciToplam],
+    ['Müşteriden Alacağım', musteriToplam],
+    ['Tedarikçiye Borcum', tedarikciToplam],
     ['Satışlar Toplamı', satisToplam],
     ['Alışlar Toplamı', alisToplam],
     ['Masraflar Toplamı', sum('masraflar')],
@@ -3220,7 +3220,7 @@ function renderRapor(){
     .filter(([,val])=> Math.abs(val) > 0.004)
     .sort((a,b)=> a[1] - b[1]);
   if(tedarikciDetay.length){
-    html += `<div class="rapor-section-title">Tedarikçi Bazında Borç / Alacak</div>`;
+    html += `<div class="rapor-section-title">Tedarikçiye Borcum (Tedarikçi Bazında)</div>`;
     html += tedarikciDetay.map(([name, val])=> `
       <div class="tx-row">
         <div class="tx-left"><div class="tx-type pos">${name}</div></div>
