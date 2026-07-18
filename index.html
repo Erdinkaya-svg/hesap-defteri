@@ -4825,8 +4825,7 @@ if(ensureIrmakPlastik()) save();
 // eklendi ki toplamlar (332.617,50 satış / 311.467,50 tahsilat / 21.150,00 net) tam tutsun.
 // Zaten varsa dokunulmuyor, tekrar eklenmiyor (idempotent, ekleme-amaçlı, üzerine yazmıyor).
 function ensureNisantasiKuruTemizleme(){
-  if(state.cari.some(c => normAd(c.name) === normAd('Nişantaşı Kuru Temizleme'))) return false;
-  state.cari.push({ id:'nisantasikuru', name:'Nişantaşı Kuru Temizleme', transactions: [
+  const itemizedTx = [
     {type:'AÇILIŞ', desc:'Açılış bakiyesi (25.05.2024 öncesi devreden)', amount:12375.00, date:'2024-05-01T00:00:00'},
     {type:'SATIŞ', desc:'300 adet mandallı x 6', amount:1800.00, date:'2024-05-25T14:04:00'},
     {type:'TAHSİLAT', desc:'', amount:10000.00, date:'2024-06-15T12:45:00'},
@@ -4878,8 +4877,21 @@ function ensureNisantasiKuruTemizleme(){
     {type:'SATIŞ', desc:'300 adet mandallı x8', amount:2400.00, date:'2026-07-07T15:39:00'},
     {type:'SATIŞ', desc:'2000 x t43 4.5', amount:9000.00, date:'2026-07-07T15:40:00'},
     {type:'SATIŞ', desc:'1250 x 7.8', amount:9750.00, date:'2026-07-07T15:40:01'}
-  ] });
-  return true;
+  ];
+  const existing = state.cari.find(c => normAd(c.name) === normAd('Nişantaşı Kuru Temizleme'));
+  if(!existing){
+    state.cari.push({ id:'nisantasikuru', name:'Nişantaşı Kuru Temizleme', transactions: itemizedTx });
+    return true;
+  }
+  // Kullanıcı onayladı: hesapta sadece tek bir toplu "Açılış Fişi" (21.150,00) varsa,
+  // bunu silip yerine tek tek fişleri (aynı toplam bakiyeye eşit) koy. Başka hareket
+  // varsa dokunma (veri kaybı riskine karşı).
+  if(existing.transactions.length === 1 && existing.transactions[0].type === 'AÇILIŞ'
+     && Math.abs(existing.transactions[0].amount - 21150.00) < 0.01){
+    existing.transactions = itemizedTx;
+    return true;
+  }
+  return false;
 }
 if(ensureNisantasiKuruTemizleme()) save();
 
