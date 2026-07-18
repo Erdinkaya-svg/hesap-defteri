@@ -5071,6 +5071,29 @@ function ensureOzcanAski(){
 }
 if(ensureOzcanAski()) save();
 
+// Kullanıcının gönderdiği ikinci rapor ekran görüntüsünden (Özcan Askı, Aralık 2025
+// dönemi) elle işlendi. Bu dönem toplamı 14.000,00 ödeme / -14.000,00 alış = 0 net
+// bakiye ile birebir eşleşiyor. Sadece mevcut hesabın ÜZERİNE, önceki hareketlere
+// dokunmadan ekleniyor; aynı tarih/tutar zaten varsa tekrar eklenmiyor (idempotent).
+function ensureOzcanAskiAralik2025(){
+  const yeniTx = [
+    {type:'ÖDEME', desc:'', amount:7000.00, date:'2025-12-05T06:47:00'},
+    {type:'ÖDEME', desc:'', amount:7000.00, date:'2025-12-09T19:52:00'},
+    {type:'ALIŞ', desc:'100 adet Mandallı askı x65', amount:-6500.00, date:'2025-12-09T19:53:00'},
+    {type:'ALIŞ', desc:'100 adet barlı askı', amount:-7500.00, date:'2025-12-09T19:53:01'}
+  ];
+  const existing = state.tedarikci.find(c => normAd(c.name) === normAd('Özcan Askı'));
+  if(!existing) return false;
+  if(!existing.transactions) existing.transactions = [];
+  let changed = false;
+  yeniTx.forEach(tx => {
+    const varMi = existing.transactions.some(t => t.date === tx.date && Math.abs(t.amount - tx.amount) < 0.01);
+    if(!varMi){ existing.transactions.push(tx); changed = true; }
+  });
+  return changed;
+}
+if(ensureOzcanAskiAralik2025()) save();
+
 render();
 </script>
 </body>
