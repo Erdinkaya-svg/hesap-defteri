@@ -5033,9 +5033,17 @@ function ensureTitizKuruTemizleme(){
     {type:'TAHSİLAT', desc:'', amount:-19400.00, date:'2025-12-27T12:52:00'}
   ];
   const existing = state.cari.find(c => normAd(c.name) === normAd('Titiz Kuru Temizleme'));
-  if(existing) return false;
-  state.cari.push({ id:'titizkuru', name:'Titiz Kuru Temizleme', transactions: itemizedTx });
-  return true;
+  if(!existing){
+    state.cari.push({ id:'titizkuru', name:'Titiz Kuru Temizleme', transactions: itemizedTx });
+    return true;
+  }
+  // Hesap zaten varsa ama hiç hareketi yoksa (kullanıcı önceden boş oluşturmuş
+  // olabilir), veri kaybı riski olmadan itemized listeyi ekleyebiliriz.
+  if(!existing.transactions || existing.transactions.length === 0){
+    existing.transactions = itemizedTx;
+    return true;
+  }
+  return false;
 }
 if(ensureTitizKuruTemizleme()) save();
 
