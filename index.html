@@ -4682,8 +4682,11 @@ function showYedekMetinKutusu(dataStr){
         <div style="font-size:12.5px;color:#7c8b90;line-height:1.4;">Aşağıdaki metnin tamamına dokunup basılı tut → "Tümünü Seç" → "Kopyala" yap. İstersen önce butonla otomatik kopyalamayı dene.</div>
         <textarea id="yedekMetinAlani" readonly style="flex:1;min-height:220px;font-family:monospace;font-size:11.5px;border:1px solid #e7edf0;border-radius:10px;padding:10px;resize:none;-webkit-user-select:text;user-select:text;"></textarea>
         <div style="display:flex;gap:10px;">
+          <button id="yedekIndirBtn" style="flex:1;padding:12px 0;border:none;border-radius:12px;background:#1f8a54;color:#fff;font-weight:700;font-size:14px;cursor:pointer;">Dosya Olarak İndir</button>
           <button id="yedekKopyalaBtn" style="flex:1;padding:12px 0;border:none;border-radius:12px;background:#2f6690;color:#fff;font-weight:700;font-size:14px;cursor:pointer;">Panoya Kopyala</button>
-          <button id="yedekKapatBtn" style="padding:12px 16px;border:1px solid #e7edf0;border-radius:12px;background:#fff;color:#1c2b30;font-weight:700;font-size:14px;cursor:pointer;">Kapat</button>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button id="yedekKapatBtn" style="flex:1;padding:12px 16px;border:1px solid #e7edf0;border-radius:12px;background:#fff;color:#1c2b30;font-weight:700;font-size:14px;cursor:pointer;">Kapat</button>
         </div>
         <div id="yedekKopyaDurum" style="font-size:12.5px;font-weight:700;color:#1f7a4d;text-align:center;height:14px;"></div>
       </div>`;
@@ -4694,6 +4697,26 @@ function showYedekMetinKutusu(dataStr){
   const ta = document.getElementById('yedekMetinAlani');
   ta.value = dataStr;
   document.getElementById('yedekKopyaDurum').textContent = '';
+  document.getElementById('yedekIndirBtn').onclick = () => {
+    const durum = document.getElementById('yedekKopyaDurum');
+    try {
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const tarih = new Date().toISOString().slice(0,10);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `hesap-defteri-yedek-${tarih}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+      durum.textContent = '✓ İndirme başlatıldı';
+      durum.style.color = '#1f7a4d';
+    } catch(err){
+      durum.textContent = 'İndirilemedi — Panoya Kopyala\'yı deneyin';
+      durum.style.color = '#c0392b';
+    }
+  };
   document.getElementById('yedekKopyalaBtn').onclick = async () => {
     const durum = document.getElementById('yedekKopyaDurum');
     try {
