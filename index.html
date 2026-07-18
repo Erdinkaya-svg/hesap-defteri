@@ -4701,10 +4701,10 @@ function showYedekMetinKutusu(dataStr){
     const durum = document.getElementById('yedekKopyaDurum');
     const tarih = new Date().toISOString().slice(0,10);
     const filename = `hesap-defteri-yedek-${tarih}.json`;
-    const blob = new Blob([dataStr], { type: 'application/json' });
     if(navigator.share){
       try {
-        const file = new File([blob], filename, { type: 'application/json' });
+        const shareBlob = new Blob([dataStr], { type: 'application/json' });
+        const file = new File([shareBlob], filename, { type: 'application/json' });
         await navigator.share({ files: [file] });
         durum.textContent = '✓ Paylaşıldı';
         durum.style.color = '#1f7a4d';
@@ -4715,7 +4715,10 @@ function showYedekMetinKutusu(dataStr){
       }
     }
     try {
-      const url = URL.createObjectURL(blob);
+      // application/octet-stream: Safari bazı JSON/metin türlerini indirmek yerine
+      // sekmede düz metin olarak açabiliyor; bunu önlemek için genel ikili tür kullanılıyor.
+      const dlBlob = new Blob([dataStr], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(dlBlob);
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
