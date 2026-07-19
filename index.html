@@ -495,10 +495,10 @@
 <div class="sheet">
   <div class="grabber"></div>
   <div class="content">
-    <div class="sheet-title" id="sheetTitle" style="display:none;">HESAPLAR</div>
+    <div class="sheet-title" id="sheetTitle">HESAPLAR</div>
     <div class="cari-card" id="cariSummaryCard">
       <div class="cari-card-top">
-        <span class="cari-card-label" id="cariTotalLbl">CH KART</span>
+        <span class="cari-card-label" id="cariTotalLbl">FİNANSAL DURUM</span>
         <button id="cariFilterFab" class="cari-card-logo mode-tumu" title="Tümü" style="background:none;border:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;"><i class="c1"></i><i class="c2"></i></button>
       </div>
       <button id="openAdd" title="Ekle" style="position:absolute;top:46px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;border:none;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;-webkit-tap-highlight-color:transparent;">＋</button>
@@ -3011,7 +3011,7 @@ document.getElementById('anaMenu').querySelectorAll('.am-tile').forEach(tile=>{
     if(mod === 'tedarikci'){
       activeLedger = 'cari';
       document.getElementById('sheetTitle').textContent = 'CARİ HESAPLAR';
-      document.getElementById('cariTotalLbl').textContent = 'CH KART';
+      document.getElementById('cariTotalLbl').textContent = 'TOPLAM (BORÇ / ALACAK)';
       hideAllScreens();
       musteriScreen.style.display = 'flex';
       renderCariHesaplar();
