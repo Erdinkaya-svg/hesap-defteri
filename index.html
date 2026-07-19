@@ -256,6 +256,7 @@
   .gider-chip.active{background:#1f7a4d;color:#fff;}
   .entry-row{display:flex;align-items:center;padding:10px 12px;gap:6px;}
   .entry-desc{flex:1;min-width:0;background:#eef7f1;border:none;border-radius:10px;padding:12px 10px;font-size:14px;color:var(--ink);}
+  #genKatBtn.hidden{display:none;}
   .entry-amt{width:64px;flex-shrink:0;background:transparent;border:none;border-bottom:2px solid rgba(255,255,255,.6);color:#fff;font-size:16px;text-align:right;padding:8px 2px;}
   .entry-amt::placeholder{color:rgba(255,255,255,.7);}
   .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 12px 14px 12px;background:#e2e5e6;}
@@ -1138,6 +1139,7 @@
   <div class="entry-bar">
     <div class="entry-row">
       <input type="text" class="entry-desc" id="genDesc" placeholder="Açıklama">
+      <button type="button" class="entry-desc hidden" id="genKatBtn" style="text-align:left;color:#4a5a60;background:#eef7f1;cursor:pointer;">Kalem Seç</button>
       <input type="text" class="entry-amt" id="genAmount" placeholder="0" readonly>
       <button class="entry-save" id="genSave">KAYDET</button>
     </div>
@@ -1147,6 +1149,20 @@
       <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
       <button data-k=",">,</button><button data-k="0">0</button><button data-k="back" class="kback">⌫</button>
     </div>
+  </div>
+</div>
+
+<div class="overlay" id="katPopupOverlay" style="z-index:95;">
+  <div class="modal" style="max-height:78vh;overflow-y:auto;padding-bottom:14px;">
+    <h3 style="margin-bottom:12px;">Masraf Kalemi Seç</h3>
+    <div id="katPopupChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;"></div>
+    <div id="katPopupEmpty" class="empty-tx hidden" style="padding:18px 0;">Henüz masraf kalemi eklemedin</div>
+    <div class="kat-new-row hidden" id="katPopupNewRow" style="margin-top:10px;">
+      <input type="text" id="katPopupInput" placeholder="Yeni masraf kalemi adı" class="ci-input" style="margin:0;flex:1;">
+      <button type="button" class="kat-new-save" id="katPopupSave">Ekle</button>
+    </div>
+    <button type="button" id="katPopupAddBtn" style="width:100%;padding:12px 0;border:none;border-radius:10px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;margin-top:12px;">＋ Yeni Masraf Kalemi</button>
+    <button type="button" id="katPopupClose" style="width:100%;padding:14px 0;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:8px;">Kapat</button>
   </div>
 </div>
 
@@ -1380,6 +1396,7 @@ if(!state.alisFisleri) state.alisFisleri = [];
 if(!state.satisFisleri) state.satisFisleri = [];
 if(!state.siparisFisleri) state.siparisFisleri = [];
 if(!state.cariFilter) state.cariFilter = 'tumu';
+if(!state.masrafKategorileri) state.masrafKategorileri = [];
 
 let activeLedger = 'cari';
 function getLedger(){ return state[activeLedger]; }
@@ -3168,25 +3185,74 @@ function openGenModule(mod){
   nudge();
 }
 
-const GIDER_KATEGORILERI = ['Kira','Elektrik','Su','Doğalgaz','İnternet/Telefon','Personel Maaşı','SGK/Vergi','Yakıt','Bakım/Onarım','Kırtasiye','Nakliye','Diğer'];
 
 function renderGenKategoriler(){
   const row = document.getElementById('giderKategoriRow');
-  if(currentModule !== 'masraflar'){
-    row.classList.add('hidden');
-    row.innerHTML = '';
+  row.classList.add('hidden');
+  row.innerHTML = '';
+
+  const descInput = document.getElementById('genDesc');
+  const katBtn = document.getElementById('genKatBtn');
+  if(currentModule === 'masraflar'){
+    descInput.classList.add('hidden');
+    katBtn.classList.remove('hidden');
+    katBtn.textContent = 'Kalem Seç';
+  } else {
+    descInput.classList.remove('hidden');
+    katBtn.classList.add('hidden');
+  }
+}
+
+function renderKatPopupChips(){
+  const wrap = document.getElementById('katPopupChips');
+  const empty = document.getElementById('katPopupEmpty');
+  const list = state.masrafKategorileri || [];
+  if(!list.length){
+    wrap.innerHTML = '';
+    empty.classList.remove('hidden');
     return;
   }
-  row.classList.remove('hidden');
-  row.innerHTML = GIDER_KATEGORILERI.map(k=> `<button type="button" class="gider-chip" data-kat="${k}">${k}</button>`).join('');
-  row.querySelectorAll('.gider-chip').forEach(chip=>{
+  empty.classList.add('hidden');
+  wrap.innerHTML = list.map(k=> `<button type="button" class="gider-chip" data-kat="${k}">${k}</button>`).join('');
+  wrap.querySelectorAll('.gider-chip').forEach(chip=>{
     chip.onclick = () => {
-      row.querySelectorAll('.gider-chip').forEach(c=>c.classList.remove('active'));
-      chip.classList.add('active');
       document.getElementById('genDesc').value = chip.dataset.kat;
+      document.getElementById('genKatBtn').textContent = chip.dataset.kat;
+      document.getElementById('genKatBtn').style.color = 'var(--ink)';
+      document.getElementById('katPopupOverlay').classList.remove('show');
     };
   });
 }
+
+document.getElementById('genKatBtn').onclick = () => {
+  renderKatPopupChips();
+  document.getElementById('katPopupNewRow').classList.add('hidden');
+  document.getElementById('katPopupOverlay').classList.add('show');
+};
+document.getElementById('katPopupClose').onclick = () => {
+  document.getElementById('katPopupOverlay').classList.remove('show');
+};
+document.getElementById('katPopupOverlay').onclick = (e) => {
+  if(e.target === document.getElementById('katPopupOverlay')) document.getElementById('katPopupOverlay').classList.remove('show');
+};
+document.getElementById('katPopupAddBtn').onclick = () => {
+  document.getElementById('katPopupNewRow').classList.toggle('hidden');
+  document.getElementById('katPopupInput').focus();
+};
+document.getElementById('katPopupSave').onclick = () => {
+  const val = document.getElementById('katPopupInput').value.trim();
+  if(!val) return;
+  if(!state.masrafKategorileri) state.masrafKategorileri = [];
+  if(!state.masrafKategorileri.includes(val)) state.masrafKategorileri.push(val);
+  save();
+  document.getElementById('katPopupInput').value = '';
+  document.getElementById('katPopupNewRow').classList.add('hidden');
+  renderKatPopupChips();
+  document.getElementById('genDesc').value = val;
+  document.getElementById('genKatBtn').textContent = val;
+  document.getElementById('genKatBtn').style.color = 'var(--ink)';
+  document.getElementById('katPopupOverlay').classList.remove('show');
+};
 
 function renderGenModule(){
   const list = state.modules[currentModule] || [];
@@ -3246,7 +3312,8 @@ document.getElementById('genSave').onclick = () => {
   state.modules[currentModule].push({ desc, amount, date: new Date().toISOString() });
   document.getElementById('genDesc').value = '';
   document.getElementById('genAmount').value = '';
-  document.getElementById('giderKategoriRow').querySelectorAll('.gider-chip').forEach(c=>c.classList.remove('active'));
+  document.getElementById('genKatBtn').textContent = 'Kalem Seç';
+  document.getElementById('genKatBtn').style.color = '#4a5a60';
   save();
   renderGenModule();
 };
