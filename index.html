@@ -5554,6 +5554,79 @@ function ensureDrysanKuruTemizleme(){
 }
 if(ensureDrysanKuruTemizleme()) save();
 
+// Kullanıcının gönderdiği ekstre ekran görüntülerinden (Çağatay Ticaret, Temmuz 2023
+// - Nisan 2026 arası) elle işlendi. Ekran görüntüsü 7 Temmuz 2023'ten başlıyor ama
+// hareketlerin toplamı (8.023,00) o tarihten önce de bir bakiye olduğunu gösteriyordu
+// (TOPLAM ₺ 0 olması gerekiyordu); bu yüzden 8.023,00 TL'lik bir AÇILIŞ (borç) bakiyesi
+// eklendi ki toplam tam tutsun. Var olan tedarikçi tarzı hesaplarla (Göçtürk Plastik)
+// aynı şekilde ALIŞ/ÖDEME tipleriyle state.cari'ye işlendi.
+function ensureCagatayTicaret(){
+  const itemizedTx = [
+    {type:'AÇILIŞ', desc:'Açılış bakiyesi (07.07.2023 öncesi devreden)', amount:-8023.00, date:'2023-07-01T00:00:00'},
+    {type:'ALIŞ', desc:'', amount:-468.00, date:'2023-07-07T00:00:00'},
+    {type:'ALIŞ', desc:'', amount:-270.00, date:'2023-07-07T00:00:01'},
+    {type:'ÖDEME', desc:'', amount:8761.00, date:'2023-07-08T00:00:00'},
+    {type:'ALIŞ', desc:'Anadolu Japan', amount:-1560.00, date:'2023-07-19T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:1770.00, date:'2023-07-19T00:00:01'},
+    {type:'TAHSİLAT', desc:'', amount:-210.00, date:'2023-07-19T00:00:02'},
+    {type:'ALIŞ', desc:'Ritz', amount:-2250.00, date:'2023-07-21T00:00:00'},
+    {type:'ALIŞ', desc:'St regis', amount:-1885.00, date:'2023-08-09T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:4135.00, date:'2023-08-16T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:6000.00, date:'2023-08-25T00:00:00'},
+    {type:'ALIŞ', desc:'', amount:-725.00, date:'2023-09-11T00:00:00'},
+    {type:'ALIŞ', desc:'', amount:-380.00, date:'2023-09-11T00:00:01'},
+    {type:'ALIŞ', desc:'Alinçe fatura', amount:-6000.00, date:'2023-09-11T00:00:02'},
+    {type:'ÖDEME', desc:'St Regis otelden gelen ödeme', amount:4350.00, date:'2023-10-21T00:00:00'},
+    {type:'ALIŞ', desc:'Som otel', amount:-1700.00, date:'2023-12-25T00:00:00'},
+    {type:'ALIŞ', desc:'', amount:-8000.00, date:'2024-01-04T00:00:00'},
+    {type:'ALIŞ', desc:'', amount:-600.00, date:'2024-01-04T00:00:01'},
+    {type:'ÖDEME', desc:'', amount:7055.00, date:'2024-01-04T00:00:02'},
+    {type:'ALIŞ', desc:'Anadolu Japan', amount:-1200.00, date:'2024-01-05T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:1200.00, date:'2024-02-13T00:00:00'},
+    {type:'ALIŞ', desc:'Sheraton tahta askı KDV', amount:-7344.00, date:'2024-02-23T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:3024.00, date:'2024-02-23T00:00:01'},
+    {type:'ÖDEME', desc:'', amount:4320.00, date:'2024-02-27T00:00:00'},
+    {type:'ALIŞ', desc:'Som otel', amount:-2220.00, date:'2024-04-05T00:00:00'},
+    {type:'ALIŞ', desc:'Alinçe hesap kapatma KDV', amount:-12120.00, date:'2024-04-17T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:10000.00, date:'2024-04-17T00:00:01'},
+    {type:'ÖDEME', desc:'', amount:3024.00, date:'2024-05-30T00:00:00'},
+    {type:'ALIŞ', desc:'KDV', amount:-4204.00, date:'2024-07-12T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:5520.00, date:'2024-07-12T00:00:01'},
+    {type:'ALIŞ', desc:'Anadolu Japan', amount:-3600.00, date:'2024-10-09T00:00:00'},
+    {type:'ALIŞ', desc:'Fairmont', amount:-516.00, date:'2024-10-17T00:00:00'},
+    {type:'ALIŞ', desc:'', amount:-920.00, date:'2024-10-17T00:00:01'},
+    {type:'ÖDEME', desc:'', amount:5036.00, date:'2024-11-04T00:00:00'},
+    {type:'ALIŞ', desc:'Som otel', amount:-2280.00, date:'2024-12-17T00:00:00'},
+    {type:'ALIŞ', desc:'Swiss', amount:-1520.00, date:'2024-12-25T00:00:00'},
+    {type:'ÖDEME', desc:'Anadolu Japan', amount:3800.00, date:'2025-01-09T00:00:00'},
+    {type:'ALIŞ', desc:'Anadolu Japan', amount:-3200.00, date:'2025-01-16T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:3200.00, date:'2025-01-16T00:00:01'},
+    {type:'ALIŞ', desc:'Sheraton otel tahta askı', amount:-3900.00, date:'2025-03-03T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:3900.00, date:'2025-03-07T00:00:00'},
+    {type:'ALIŞ', desc:'', amount:-1100.00, date:'2025-05-03T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:1100.00, date:'2025-05-10T00:00:00'},
+    {type:'ALIŞ', desc:'Ritz', amount:-2750.00, date:'2025-05-20T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:2750.00, date:'2025-06-13T00:00:00'},
+    {type:'ALIŞ', desc:'Son otel', amount:-22300.00, date:'2025-09-21T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:22300.00, date:'2025-10-10T00:00:00'},
+    {type:'TAHSİLAT', desc:'Som otel KDV', amount:-4260.00, date:'2025-12-06T00:00:00'},
+    {type:'ÖDEME', desc:'', amount:4260.00, date:'2025-12-16T00:00:00'},
+    {type:'ALIŞ', desc:'Ritz', amount:-1620.00, date:'2026-02-03T13:09:00'},
+    {type:'ÖDEME', desc:'', amount:1620.00, date:'2026-04-04T17:28:00'}
+  ];
+  const existing = state.cari.find(c => normAd(c.name) === normAd('Çağatay Ticaret'));
+  if(!existing){
+    state.cari.push({ id:'cagatayticaret', name:'Çağatay Ticaret', transactions: itemizedTx });
+    return true;
+  }
+  if(!existing.transactions || existing.transactions.length === 0){
+    existing.transactions = itemizedTx;
+    return true;
+  }
+  return false;
+}
+if(ensureCagatayTicaret()) save();
+
 render();
 </script>
 </body>
