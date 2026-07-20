@@ -1497,6 +1497,10 @@ function fmt(n){
   const sign = n < 0 ? '-' : '';
   return sign + Math.abs(n).toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '₺';
 }
+function fmtWhole(n){
+  const sign = n < 0 ? '-' : '';
+  return sign + Math.round(Math.abs(n)).toLocaleString('tr-TR', {minimumFractionDigits:0, maximumFractionDigits:0}) + '₺';
+}
 function fmtPlain(n){
   const sign = n < 0 ? '-' : '';
   return sign + Math.abs(n).toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -1729,7 +1733,7 @@ function render(){
           <span class="name ${bal < 0 ? 'neg-name' : ''}">${bal < 0 ? '(' + c.name + ')' : c.name}</span>
           ${ozetHtml}
         </div>
-        <span class="amount ${bal < 0 ? 'neg' : ''}">${fmt(bal)}</span>
+        <span class="amount ${bal < 0 ? 'neg' : ''}">${fmtWhole(bal)}</span>
       </div>
     </div>`;
   }).join('');
@@ -1848,7 +1852,7 @@ function renderCariHesaplar(){
           <span class="name ${bal < 0 ? 'neg-name' : ''}">${bal < 0 ? '(' + c.name + ')' : c.name}</span>
           ${ozetHtml}
         </div>
-        <span class="amount ${bal < 0 ? 'neg' : ''}">${fmt(bal)}</span>
+        <span class="amount ${bal < 0 ? 'neg' : ''}">${fmtWhole(bal)}</span>
       </div>
     </div>`;
   }).join('') || (state.cariFilter === 'hareket'
