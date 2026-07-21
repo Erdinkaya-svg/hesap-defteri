@@ -521,6 +521,7 @@
     <div class="am-tile" data-mod="masraflar"><div class="am-badge b-masraf"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2.2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="am-label">MASRAFLAR</div></div>
     <div class="am-tile" data-mod="kasa"><div class="am-badge b-masraf"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19"/><circle cx="12" cy="14.2" r="2.3"/></svg></div><div class="am-label">KASA</div></div>
     <div class="am-tile" data-mod="raporlar"><div class="am-badge b-rapor"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" fill="#fff" stroke="none"/><rect x="12" y="8" width="3" height="10" fill="#fff" stroke="none"/><rect x="17" y="5" width="3" height="13" fill="#fff" stroke="none"/></svg></div><div class="am-label">FİNANSAL RAPOR</div></div>
+    <div class="am-tile" data-mod="cekSenet"><div class="am-badge b-masraf"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19"/><path d="M6 14h5"/><path d="M15 14.5l1.4 1.4L19.5 12.8"/></svg></div><div class="am-label">ÇEK SENET</div></div>
     <div class="am-tile" data-mod="ayarlar"><div class="am-badge b-ayarlar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13a7.9 7.9 0 0 0 0-2l1.9-1.5-2-3.4-2.3.8a8 8 0 0 0-1.7-1L15 3.5h-6l-.3 2.4a8 8 0 0 0-1.7 1l-2.3-.8-2 3.4L4.6 11a7.9 7.9 0 0 0 0 2l-1.9 1.5 2 3.4 2.3-.8a8 8 0 0 0 1.7 1L9 20.5h6l.3-2.4a8 8 0 0 0 1.7-1l2.3.8 2-3.4z"/></svg></div><div class="am-label">AYARLAR</div></div>
     <div class="am-tile" data-mod="iletisim"><div class="am-badge b-iletisim"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13a2 2 0 0 1 2-2h1v5H6a2 2 0 0 1-2-2z"/><path d="M20 13a2 2 0 0 0-2-2h-1v5h1a2 2 0 0 0 2-2z"/><path d="M16 17.5v.5a2 2 0 0 1-2 2h-1.5"/></svg></div><div class="am-label">İLETİŞİM</div></div>
   </div>
@@ -1397,6 +1398,22 @@
     </div>
   </div>
   <div class="d-list" id="kasaList" style="padding:16px 16px 100px 16px;"></div>
+</div>
+
+<div class="detail-screen" id="cekSenetScreen">
+  <div class="d-header">
+    <div class="d-title">Çek Senet</div>
+  </div>
+  <div class="d-list" id="cekSenetList" style="padding:16px 16px 100px 16px;"></div>
+</div>
+
+<div class="overlay" id="cekCikisOverlay" style="z-index:95;">
+  <div class="modal" style="padding-bottom:14px;">
+    <h3 style="margin-bottom:6px;">Çeki Çıkışa Ver</h3>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 14px 0;" id="cekCikisAciklama"></p>
+    <div id="cekCikisTedarikciList" style="max-height:50vh;overflow-y:auto;"></div>
+    <button id="cekCikisIptal" style="margin-top:10px;width:100%;padding:14px 0;border:none;border-radius:12px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">İptal</button>
+  </div>
 </div>
 
 <div class="receipt-overlay" id="receiptOverlay">
@@ -3423,6 +3440,7 @@ function hideAllScreens(){
   document.getElementById('siparisDetayScreen').classList.remove('show');
   document.getElementById('ayarlarScreen').classList.remove('show');
   kasaScreen.classList.remove('show');
+  document.getElementById('cekSenetScreen').classList.remove('show');
   document.getElementById('masrafScreen').classList.remove('show');
   document.getElementById('masrafDetayScreen').classList.remove('show');
   document.getElementById('anaMenuFloatBtn').style.display = 'flex';
@@ -3479,6 +3497,11 @@ document.getElementById('anaMenu').querySelectorAll('.am-tile').forEach(tile=>{
       nudge();
     } else if(mod === 'iletisim'){
       document.getElementById('iletisimOverlay').classList.add('show');
+    } else if(mod === 'cekSenet'){
+      renderCekSenet();
+      hideAllScreens();
+      document.getElementById('cekSenetScreen').classList.add('show');
+      nudge();
     } else if(mod === 'kasa'){
       renderKasa();
       hideAllScreens();
@@ -3601,6 +3624,102 @@ function renderKasa(){
     };
   });
 }
+
+// ---------- Çek Senet — tüm carilerden alınan çeklerin tek listede takibi.
+// Kasada duran çekler buradan bir tedarikçiye "Çıkışa Ver" ile ödeme olarak devredilebilir;
+// orijinal Tahsilat hareketi ve Kasa'daki kaydı hiç değişmeden kalır, sadece durum güncellenir. ----------
+let cekSenetListData = [];
+function renderCekSenet(){
+  const rows = [];
+  state.cari.forEach(c=>{
+    (c.transactions||[]).forEach(t=>{
+      if(t.cek) rows.push({ cari: c, tx: t });
+    });
+  });
+  rows.sort((a,b)=> new Date(b.tx.date) - new Date(a.tx.date));
+  cekSenetListData = rows;
+  const list = document.getElementById('cekSenetList');
+  if(!rows.length){
+    list.innerHTML = '<div class="empty-tx">Henüz çek kaydı yok</div>';
+    return;
+  }
+  list.innerHTML = rows.map((r,i)=>{
+    const t = r.tx, d = t.cekDetay || {};
+    const durum = t.ciro ? 'Ciro Edildi' : 'Kasada';
+    const durumBg = t.ciro ? '#e8f5ee' : '#fdf3e3';
+    const durumColor = t.ciro ? '#1f9d64' : '#b9770e';
+    const vade = d.vadeTarihi ? new Date(d.vadeTarihi).toLocaleDateString('tr-TR') : '—';
+    const cikisBtn = !t.ciro
+      ? `<button type="button" class="cek-cikis-btn" data-idx="${i}" style="margin-top:8px;border:none;border-radius:8px;padding:9px 12px;font-weight:700;font-size:13px;cursor:pointer;background:var(--accent);color:#fff;">Çıkışa Ver</button>`
+      : (d.kimeCiroEdildi ? `<div style="margin-top:6px;font-size:12px;color:var(--muted);">Çıkış: ${d.kimeCiroEdildi}</div>` : '');
+    return `
+      <div class="tx-row" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-weight:700;font-size:14.5px;">${r.cari.name}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">${d.banka || '—'}${d.no ? ' · '+d.no : ''}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Vade: ${vade}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:800;font-size:15px;">${fmtPlain(Math.abs(t.amount))}₺</div>
+            <div style="margin-top:6px;border:none;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;display:inline-block;background:${durumBg};color:${durumColor};">${durum}</div>
+          </div>
+        </div>
+        ${cikisBtn}
+      </div>`;
+  }).join('');
+  list.querySelectorAll('.cek-cikis-btn').forEach(btn=>{
+    btn.onclick = () => openCekCikis(parseInt(btn.dataset.idx, 10));
+  });
+}
+
+let cekCikisIdx = null;
+function openCekCikis(idx){
+  const r = cekSenetListData[idx];
+  if(!r) return;
+  cekCikisIdx = idx;
+  document.getElementById('cekCikisAciklama').textContent = r.cari.name + ' çekini (' + fmtPlain(Math.abs(r.tx.amount)) + '₺) hangi tedarikçiye ödeme olarak vereceksin?';
+  const listEl = document.getElementById('cekCikisTedarikciList');
+  if(!state.tedarikci.length){
+    listEl.innerHTML = '<div class="empty-tx">Tedarikçi kaydı yok</div>';
+  } else {
+    listEl.innerHTML = state.tedarikci.map(td=>`<button type="button" class="cek-cikis-tedarikci-btn" data-id="${td.id}" style="width:100%;text-align:left;padding:13px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-weight:600;font-size:14px;cursor:pointer;margin-bottom:8px;">${td.name}</button>`).join('');
+    listEl.querySelectorAll('.cek-cikis-tedarikci-btn').forEach(btn=>{
+      btn.onclick = () => cekCikisiUygula(btn.dataset.id);
+    });
+  }
+  document.getElementById('cekCikisOverlay').classList.add('show');
+}
+function cekCikisiUygula(tedarikciId){
+  const r = cekSenetListData[cekCikisIdx];
+  if(!r) return;
+  const tedarikci = state.tedarikci.find(x=>x.id===tedarikciId);
+  if(!tedarikci) return;
+  const t = r.tx;
+  if(!t.cekDetay) t.cekDetay = {};
+  t.ciro = true;
+  t.cekDetay.kimeCiroEdildi = tedarikci.name;
+  t.cekDetay.cikisTarihi = new Date().toISOString().slice(0,10);
+  const amount = Math.abs(t.amount);
+  const odemeTx = {
+    type: 'ÖDEME',
+    desc: 'Çek Çıkış — ' + r.cari.name + ' çeki' + (t.cekDetay.no ? ' (' + t.cekDetay.no + ')' : ''),
+    amount,
+    date: new Date().toISOString(),
+    cek: true,
+    cekCikis: true,
+    cekDetay: Object.assign({}, t.cekDetay)
+  };
+  tedarikci.transactions.push(odemeTx);
+  state.cash -= amount;
+  save();
+  document.getElementById('cekCikisOverlay').classList.remove('show');
+  renderCekSenet();
+  render();
+  renderCariHesaplar();
+}
+document.getElementById('cekCikisIptal').onclick = () => { document.getElementById('cekCikisOverlay').classList.remove('show'); };
+document.getElementById('cekCikisOverlay').onclick = (e) => { if(e.target === document.getElementById('cekCikisOverlay')) document.getElementById('cekCikisOverlay').classList.remove('show'); };
 
 // ---------- Masraflar (Cari Hesap mantığıyla: kalem = kart, kalemin kendi hareket geçmişi) ----------
 // Eski düz "Kalem Seç + Tutar" akışından kalan kayıtlar varsa (state.modules.masraflar),
