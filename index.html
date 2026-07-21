@@ -699,10 +699,6 @@
       <span class="dcek-dot" data-i="4"></span>
       <span class="dcek-dot" data-i="5"></span>
     </div>
-    <div style="display:flex;gap:8px;margin-top:10px;">
-      <button id="dBorcEkleBtn" style="flex:1;padding:11px 0;border:none;border-radius:10px;background:#fdeceb;color:#c0392b;font-weight:700;font-size:13.5px;cursor:pointer;">Borç Ekle</button>
-      <button id="dAlacakEkleBtn" style="flex:1;padding:11px 0;border:none;border-radius:10px;background:#e8f6ee;color:#1f9d64;font-weight:700;font-size:13.5px;cursor:pointer;">Alacak Ekle</button>
-    </div>
     <div class="dcek-page-head" style="margin-top:6px;"><span class="dcek-page-title" id="dListBaslik">TÜM HAREKETLER</span></div>
     <div class="d-list" id="dList" style="flex:1;overflow-y:auto;min-height:0;"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-top:1px solid var(--line);margin-top:4px;">
@@ -922,7 +918,16 @@
     </div>
 
     <button id="quickTxSave" style="width:100%;padding:14px 0;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;">Kaydet</button>
+    <button type="button" id="borcAlacakEkleLink" style="width:100%;background:none;border:none;padding:10px 0 0 0;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;">Bunun yerine Borç/Alacak Ekle</button>
     <button id="quickTxCancel" style="margin-top:8px;width:100%;padding:14px 0;border:none;border-radius:12px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">İptal</button>
+  </div>
+</div>
+
+<div class="overlay" id="borcAlacakOverlay" style="z-index:95;">
+  <div class="modal" style="padding-bottom:14px;text-align:center;">
+    <h3 style="margin-bottom:14px;">Ekleme Türü</h3>
+    <button type="button" id="borcAlacakBorcBtn" style="width:100%;padding:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;color:#c0392b;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px;">Borç Ekle</button>
+    <button type="button" id="borcAlacakAlacakBtn" style="width:100%;padding:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;color:#1f9d64;font-weight:700;font-size:15px;cursor:pointer;">Alacak Ekle</button>
   </div>
 </div>
 
@@ -2710,6 +2715,16 @@ function cekFormuDoldur(tx){
   const ciroToggle = document.getElementById('cekCiroDurumToggle');
   ciroToggle.classList.toggle('on', !!d.cirolu);
 }
+function applyQuickTxTypeVisibility(type){
+  const isTahsilat = type === 'TAHSİLAT';
+  document.getElementById('tahsilatYontemRow').classList.toggle('hidden', !isTahsilat);
+  document.getElementById('quickTxCekToggleRow').classList.toggle('hidden', isTahsilat);
+  if(isTahsilat){
+    tahYontemSec('nakit');
+  } else {
+    document.getElementById('cekDetayForm').classList.add('hidden');
+  }
+}
 function openQuickTx(id, ledgerKey, type){
   quickTxLedger = ledgerKey; quickTxId = id; quickTxType = type; quickTxEditDate = null; editingTx = null; quickTxPrevCiro = false;
   const c = state[ledgerKey].find(x=>x.id===id);
@@ -2723,17 +2738,28 @@ function openQuickTx(id, ledgerKey, type){
   document.getElementById('quickTxCiroRow').classList.add('hidden');
   cekFormuDoldur(null);
 
-  const isTahsilat = type === 'TAHSİLAT';
-  document.getElementById('tahsilatYontemRow').classList.toggle('hidden', !isTahsilat);
-  document.getElementById('quickTxCekToggleRow').classList.toggle('hidden', isTahsilat);
-  if(isTahsilat){
-    tahYontemSec('nakit');
-  } else {
-    document.getElementById('cekDetayForm').classList.add('hidden');
-  }
+  applyQuickTxTypeVisibility(type);
   document.getElementById('quickTxOverlay').classList.add('show');
   setTimeout(()=>document.getElementById('quickTxAmount').focus(), 50);
 }
+document.getElementById('borcAlacakEkleLink').onclick = () => { document.getElementById('borcAlacakOverlay').classList.add('show'); };
+document.getElementById('borcAlacakOverlay').onclick = (e) => {
+  if(e.target === document.getElementById('borcAlacakOverlay')) document.getElementById('borcAlacakOverlay').classList.remove('show');
+};
+document.getElementById('borcAlacakBorcBtn').onclick = () => {
+  const c = state[quickTxLedger].find(x=>x.id===quickTxId);
+  quickTxType = quickTxLedger === 'tedarikci' ? 'ALIŞ' : 'SATIŞ';
+  document.getElementById('quickTxTitle').textContent = 'Borç' + (c ? ' — ' + c.name : '');
+  applyQuickTxTypeVisibility(quickTxType);
+  document.getElementById('borcAlacakOverlay').classList.remove('show');
+};
+document.getElementById('borcAlacakAlacakBtn').onclick = () => {
+  const c = state[quickTxLedger].find(x=>x.id===quickTxId);
+  quickTxType = quickTxLedger === 'tedarikci' ? 'ÖDEME' : 'TAHSİLAT';
+  document.getElementById('quickTxTitle').textContent = 'Alacak' + (c ? ' — ' + c.name : '');
+  applyQuickTxTypeVisibility(quickTxType);
+  document.getElementById('borcAlacakOverlay').classList.remove('show');
+};
 document.getElementById('quickTxCekToggle').onclick = function(){
   quickTxCekOn = skToggleSwitch(this);
   document.getElementById('quickTxCiroRow').classList.toggle('hidden', !quickTxCekOn);
@@ -2804,21 +2830,9 @@ document.getElementById('quickTxSave').onclick = () => {
   renderCariHesaplar();
 };
 
-// Borç/Alacak — mevcut Satış/Tahsilat (alıcı) veya Alış/Ödeme (tedarikçi) mantığını
-// aynen kullanır, sadece hesabın ekstre kartından erişilen, daha genel adlı (açılış/manuel
-// düzeltme gibi durumlar için) bir kısayoldur. Raporlar ve toplamlar hiç etkilenmez.
-document.getElementById('dBorcEkleBtn').onclick = () => {
-  const type = activeLedger === 'tedarikci' ? 'ALIŞ' : 'SATIŞ';
-  openQuickTx(activeCariId, activeLedger, type);
-  const c = state[activeLedger].find(x=>x.id===activeCariId);
-  document.getElementById('quickTxTitle').textContent = 'Borç' + (c ? ' — ' + c.name : '');
-};
-document.getElementById('dAlacakEkleBtn').onclick = () => {
-  const type = activeLedger === 'tedarikci' ? 'ÖDEME' : 'TAHSİLAT';
-  openQuickTx(activeCariId, activeLedger, type);
-  const c = state[activeLedger].find(x=>x.id===activeCariId);
-  document.getElementById('quickTxTitle').textContent = 'Alacak' + (c ? ' — ' + c.name : '');
-};
+// Borç/Alacak Ekle artık ayrı buton değil, Tahsilat/Ödeme pop-up'ının içindeki
+// "Bunun yerine Borç/Alacak Ekle" linkinden erişiliyor (yukarıda borcAlacakBorcBtn/
+// borcAlacakAlacakBtn ile aynı SATIŞ/ALIŞ (Borç) ve TAHSİLAT/ÖDEME (Alacak) mantığını kullanır).
 
 function parseUnitInfo(desc){
   if(!desc) return null;
