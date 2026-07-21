@@ -192,6 +192,7 @@
   .spacer{height:14px;}
 
   .overlay{position:fixed;inset:0;background:rgba(20,30,35,.45);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  .hidden{display:none !important;}
   #tahYontemOverlay{align-items:center;}
   #tahYontemOverlay .modal{border-radius:20px;max-width:320px;}
   #dEkstreOverlay{align-items:flex-start;padding-top:calc(env(safe-area-inset-top) + 14px);}
@@ -900,10 +901,6 @@
     </div>
 
     <div id="cekDetayForm" class="hidden" style="margin-top:4px;border-top:1px solid var(--line);padding-top:12px;">
-      <div id="cekDurumRow" class="hidden" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:10px 12px;background:#f4f7f8;border-radius:10px;">
-        <span style="font-size:13px;font-weight:700;color:var(--muted);">Çekin Durumu</span>
-        <button type="button" id="cekDurumBtn" style="border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;">Kasada</button>
-      </div>
       <div class="field" style="margin-bottom:10px;"><label>Çek Numarası</label><input id="cekNo" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
       <div class="field" style="margin-bottom:10px;"><label>Banka Adı</label><input id="cekBanka" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
       <div class="field" style="margin-bottom:10px;"><label>Şube Adı</label><input id="cekSube" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
@@ -2678,16 +2675,6 @@ document.getElementById('tahYontemCekSecBtn').onclick = () => { tahYontemSec('ce
 document.getElementById('tahYontemOverlay').onclick = (e) => {
   if(e.target === document.getElementById('tahYontemOverlay')) document.getElementById('tahYontemOverlay').classList.remove('show');
 };
-document.getElementById('cekDurumBtn').onclick = function(){
-  if(!editingTx) return;
-  editingTx.ciro = !editingTx.ciro;
-  this.textContent = editingTx.ciro ? 'Ciro Edildi' : 'Kasada';
-  this.style.background = editingTx.ciro ? '#e8f5ee' : '#fdf3e3';
-  this.style.color = editingTx.ciro ? '#1f9d64' : '#b9770e';
-  save();
-  const c2 = getLedger().find(x=>x.id===activeCariId);
-  if(c2){ renderCekSayfalari(c2); applyEkstreListFilter(dActivePage); }
-};
 function cekFormuDoldur(tx){
   const d = tx && tx.cekDetay ? tx.cekDetay : {};
   document.getElementById('cekNo').value = d.no || '';
@@ -2717,7 +2704,6 @@ function openQuickTx(id, ledgerKey, type){
   document.getElementById('quickTxCekToggle').classList.remove('on');
   document.getElementById('quickTxCiroToggle').classList.remove('on');
   document.getElementById('quickTxCiroRow').classList.add('hidden');
-  document.getElementById('cekDurumRow').classList.add('hidden');
   cekFormuDoldur(null);
 
   const isTahsilat = type === 'TAHSİLAT';
