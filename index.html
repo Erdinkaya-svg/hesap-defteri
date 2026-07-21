@@ -918,16 +918,7 @@
     </div>
 
     <button id="quickTxSave" style="width:100%;padding:14px 0;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;">Kaydet</button>
-    <button type="button" id="borcAlacakEkleLink" style="width:100%;background:none;border:none;padding:10px 0 0 0;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;">Bunun yerine Borç/Alacak Ekle</button>
     <button id="quickTxCancel" style="margin-top:8px;width:100%;padding:14px 0;border:none;border-radius:12px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">İptal</button>
-  </div>
-</div>
-
-<div class="overlay" id="borcAlacakOverlay" style="z-index:95;">
-  <div class="modal" style="padding-bottom:14px;text-align:center;">
-    <h3 style="margin-bottom:14px;">Ekleme Türü</h3>
-    <button type="button" id="borcAlacakBorcBtn" style="width:100%;padding:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;color:#c0392b;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px;">Borç Ekle</button>
-    <button type="button" id="borcAlacakAlacakBtn" style="width:100%;padding:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;color:#1f9d64;font-weight:700;font-size:15px;cursor:pointer;">Alacak Ekle</button>
   </div>
 </div>
 
@@ -935,7 +926,9 @@
   <div class="modal" style="padding-bottom:14px;text-align:center;">
     <h3 style="margin-bottom:14px;">Ödeme Yöntemi</h3>
     <button type="button" id="tahYontemNakitSecBtn" style="width:100%;padding:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px;">Nakit Ödemesi</button>
-    <button type="button" id="tahYontemCekSecBtn" style="width:100%;padding:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">Çek Ödemesi</button>
+    <button type="button" id="tahYontemCekSecBtn" style="width:100%;padding:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px;">Çek Ödemesi</button>
+    <button type="button" id="borcAlacakBorcBtn" style="width:100%;padding:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;color:#c0392b;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px;">Borç Ekle</button>
+    <button type="button" id="borcAlacakAlacakBtn" style="width:100%;padding:16px 0;border:1px solid var(--line);border-radius:12px;background:#fff;color:#1f9d64;font-weight:700;font-size:15px;cursor:pointer;">Alacak Ekle</button>
   </div>
 </div>
 
@@ -2688,12 +2681,25 @@ let quickTxLedger = null, quickTxId = null, quickTxType = null, quickTxEditDate 
 let quickTxCekOn = false, quickTxCiroOn = false, tahsilatYontem = 'nakit', editingTx = null, quickTxPrevCiro = false;
 function tahYontemSec(yontem){
   tahsilatYontem = yontem;
-  document.getElementById('tahYontemSecLabel').textContent = yontem === 'cek' ? 'Çek Ödemesi' : 'Nakit Ödemesi';
+  const labelMap = { nakit: 'Nakit Ödemesi', cek: 'Çek Ödemesi', borc: 'Borç Ekle', alacak: 'Alacak Ekle' };
+  document.getElementById('tahYontemSecLabel').textContent = labelMap[yontem] || 'Nakit Ödemesi';
   document.getElementById('cekDetayForm').classList.toggle('hidden', yontem !== 'cek');
 }
 document.getElementById('tahYontemSecBtn').onclick = () => { document.getElementById('tahYontemOverlay').classList.add('show'); };
-document.getElementById('tahYontemNakitSecBtn').onclick = () => { tahYontemSec('nakit'); document.getElementById('tahYontemOverlay').classList.remove('show'); };
-document.getElementById('tahYontemCekSecBtn').onclick = () => { tahYontemSec('cek'); document.getElementById('tahYontemOverlay').classList.remove('show'); };
+document.getElementById('tahYontemNakitSecBtn').onclick = () => {
+  quickTxType = 'TAHSİLAT';
+  const c = state[quickTxLedger].find(x=>x.id===quickTxId);
+  document.getElementById('quickTxTitle').textContent = 'Tahsilat' + (c ? ' — ' + c.name : '');
+  tahYontemSec('nakit');
+  document.getElementById('tahYontemOverlay').classList.remove('show');
+};
+document.getElementById('tahYontemCekSecBtn').onclick = () => {
+  quickTxType = 'TAHSİLAT';
+  const c = state[quickTxLedger].find(x=>x.id===quickTxId);
+  document.getElementById('quickTxTitle').textContent = 'Tahsilat' + (c ? ' — ' + c.name : '');
+  tahYontemSec('cek');
+  document.getElementById('tahYontemOverlay').classList.remove('show');
+};
 document.getElementById('tahYontemOverlay').onclick = (e) => {
   if(e.target === document.getElementById('tahYontemOverlay')) document.getElementById('tahYontemOverlay').classList.remove('show');
 };
@@ -2742,23 +2748,19 @@ function openQuickTx(id, ledgerKey, type){
   document.getElementById('quickTxOverlay').classList.add('show');
   setTimeout(()=>document.getElementById('quickTxAmount').focus(), 50);
 }
-document.getElementById('borcAlacakEkleLink').onclick = () => { document.getElementById('borcAlacakOverlay').classList.add('show'); };
-document.getElementById('borcAlacakOverlay').onclick = (e) => {
-  if(e.target === document.getElementById('borcAlacakOverlay')) document.getElementById('borcAlacakOverlay').classList.remove('show');
-};
 document.getElementById('borcAlacakBorcBtn').onclick = () => {
   const c = state[quickTxLedger].find(x=>x.id===quickTxId);
   quickTxType = quickTxLedger === 'tedarikci' ? 'ALIŞ' : 'SATIŞ';
   document.getElementById('quickTxTitle').textContent = 'Borç' + (c ? ' — ' + c.name : '');
-  applyQuickTxTypeVisibility(quickTxType);
-  document.getElementById('borcAlacakOverlay').classList.remove('show');
+  tahYontemSec('borc');
+  document.getElementById('tahYontemOverlay').classList.remove('show');
 };
 document.getElementById('borcAlacakAlacakBtn').onclick = () => {
   const c = state[quickTxLedger].find(x=>x.id===quickTxId);
   quickTxType = quickTxLedger === 'tedarikci' ? 'ÖDEME' : 'TAHSİLAT';
   document.getElementById('quickTxTitle').textContent = 'Alacak' + (c ? ' — ' + c.name : '');
-  applyQuickTxTypeVisibility(quickTxType);
-  document.getElementById('borcAlacakOverlay').classList.remove('show');
+  tahYontemSec('alacak');
+  document.getElementById('tahYontemOverlay').classList.remove('show');
 };
 document.getElementById('quickTxCekToggle').onclick = function(){
   quickTxCekOn = skToggleSwitch(this);
