@@ -203,6 +203,9 @@
   .dcek-page-total{font-size:15px;font-weight:800;color:var(--ink);}
   .dcek-dots{display:flex;justify-content:center;gap:6px;margin-top:8px;}
   .dcek-dot{width:6px;height:6px;border-radius:50%;background:#d5dade;transition:background .2s,width .2s;}
+  .dcard-pager{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;}
+  .dcard-pager::-webkit-scrollbar{display:none;}
+  .dcard-page{flex:0 0 100%;min-width:100%;scroll-snap-align:start;box-sizing:border-box;min-height:56px;}
   .dcek-dot.active{background:var(--accent);width:16px;border-radius:3px;}
   .overlay.show{display:flex;}
   .modal{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px 20px 26px 20px;}
@@ -654,39 +657,34 @@
           <span class="cari-card-label" id="dEkstreTur">ALICI</span>
           <span class="cari-card-logo"><i class="c1"></i><i class="c2"></i></span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:10px;">
-          <div class="cari-card-name" id="dEkstreCardName" style="font-size:21px;font-weight:800;color:#fff;margin-top:0;letter-spacing:.2px;">Hesap Adı</div>
-          <div class="cari-card-balance" id="dEkstreCardBalance" style="margin-top:0;text-align:right;white-space:nowrap;flex-shrink:0;">0,00₺</div>
+        <div class="dcard-pager" id="dCardPager">
+          <div class="dcard-page" data-page="0">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:10px;">
+              <div class="cari-card-name" id="dEkstreCardName" style="font-size:21px;font-weight:800;color:#fff;margin-top:0;letter-spacing:.2px;">Hesap Adı</div>
+              <div class="cari-card-balance" id="dEkstreCardBalance" style="margin-top:0;text-align:right;white-space:nowrap;flex-shrink:0;">0,00₺</div>
+            </div>
+            <div class="cari-card-name" style="font-size:11px;opacity:.65;margin-top:2px;">Net Bakiye</div>
+          </div>
+          <div class="dcard-page" data-page="1">
+            <div class="cari-card-name" style="font-size:11px;letter-spacing:.4px;opacity:.7;margin-top:10px;">ALINAN ÇEKLER</div>
+            <div class="cari-card-balance" id="dCardCekAlinan" style="margin-top:4px;">0,00₺</div>
+          </div>
+          <div class="dcard-page" data-page="2">
+            <div class="cari-card-name" style="font-size:11px;letter-spacing:.4px;opacity:.7;margin-top:10px;">TAHSİLATLAR</div>
+            <div class="cari-card-balance" id="dCardTahsilat" style="margin-top:4px;">0,00₺</div>
+          </div>
+          <div class="dcard-page" data-page="3">
+            <div class="cari-card-name" style="font-size:11px;letter-spacing:.4px;opacity:.7;margin-top:10px;">ÖDEMELER</div>
+            <div class="cari-card-balance" id="dCardOdeme" style="margin-top:4px;">0,00₺</div>
+          </div>
+          <div class="dcard-page" data-page="4">
+            <div class="cari-card-name" style="font-size:11px;letter-spacing:.4px;opacity:.7;margin-top:10px;">CİRO EDİLEN ÇEKLER</div>
+            <div class="cari-card-balance" id="dCardCekCiro" style="margin-top:4px;">0,00₺</div>
+          </div>
         </div>
         <div class="cari-card-bottom">
           <div id="dEkstreInfoBody" class="cari-card-info"></div>
         </div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:10px;">
-      <button id="dBorcEkleBtn" style="flex:1;padding:11px 0;border:none;border-radius:10px;background:#fdeceb;color:#c0392b;font-weight:700;font-size:13.5px;cursor:pointer;">Borç Ekle</button>
-      <button id="dAlacakEkleBtn" style="flex:1;padding:11px 0;border:none;border-radius:10px;background:#e8f6ee;color:#1f9d64;font-weight:700;font-size:13.5px;cursor:pointer;">Alacak Ekle</button>
-    </div>
-    <div class="dcek-pager" id="dPager" style="margin-top:10px;">
-      <div class="dcek-page" data-page="0">
-        <div class="dcek-page-head"><span class="dcek-page-title">GENEL</span><span class="dcek-page-total" id="dGenelToplamBaslik">0,00₺</span></div>
-        <div class="d-list" id="dList" style="max-height:48vh;overflow-y:auto;min-height:0;"></div>
-      </div>
-      <div class="dcek-page" data-page="1">
-        <div class="dcek-page-head"><span class="dcek-page-title">ALINAN ÇEKLER</span><span class="dcek-page-total" id="dCekAlinanToplam">0,00₺</span></div>
-        <div class="d-list" id="dListCekAlinan" style="max-height:48vh;overflow-y:auto;min-height:0;"></div>
-      </div>
-      <div class="dcek-page" data-page="2">
-        <div class="dcek-page-head"><span class="dcek-page-title">TAHSİLATLAR</span><span class="dcek-page-total" id="dTahsilatToplam">0,00₺</span></div>
-        <div class="d-list" id="dListTahsilat" style="max-height:48vh;overflow-y:auto;min-height:0;"></div>
-      </div>
-      <div class="dcek-page" data-page="3">
-        <div class="dcek-page-head"><span class="dcek-page-title">ÖDEMELER</span><span class="dcek-page-total" id="dOdemeToplam">0,00₺</span></div>
-        <div class="d-list" id="dListOdeme" style="max-height:48vh;overflow-y:auto;min-height:0;"></div>
-      </div>
-      <div class="dcek-page" data-page="4">
-        <div class="dcek-page-head"><span class="dcek-page-title">CİRO EDİLEN ÇEKLER</span><span class="dcek-page-total" id="dCekCiroToplam">0,00₺</span></div>
-        <div class="d-list" id="dListCekCiro" style="max-height:48vh;overflow-y:auto;min-height:0;"></div>
       </div>
     </div>
     <div class="dcek-dots" id="dDots">
@@ -696,6 +694,12 @@
       <span class="dcek-dot" data-i="3"></span>
       <span class="dcek-dot" data-i="4"></span>
     </div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button id="dBorcEkleBtn" style="flex:1;padding:11px 0;border:none;border-radius:10px;background:#fdeceb;color:#c0392b;font-weight:700;font-size:13.5px;cursor:pointer;">Borç Ekle</button>
+      <button id="dAlacakEkleBtn" style="flex:1;padding:11px 0;border:none;border-radius:10px;background:#e8f6ee;color:#1f9d64;font-weight:700;font-size:13.5px;cursor:pointer;">Alacak Ekle</button>
+    </div>
+    <div class="dcek-page-head" style="margin-top:6px;"><span class="dcek-page-title" id="dListBaslik">TÜM HAREKETLER</span></div>
+    <div class="d-list" id="dList" style="flex:1;overflow-y:auto;min-height:0;"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-top:1px solid var(--line);margin-top:4px;">
       <span style="font-size:13px;font-weight:700;color:var(--muted);">TOPLAM ₺</span>
       <span id="dEkstreToplam" style="font-size:18px;font-weight:800;color:var(--ink);">0,00</span>
@@ -2527,8 +2531,10 @@ function renderEkstreInfo(){
 }
 function showDEkstreOverlay(){
   resetEkstreCardSwipe();
-  const pager = document.getElementById('dPager');
-  pager.scrollLeft = 0;
+  const cardPager = document.getElementById('dCardPager');
+  cardPager.scrollLeft = 0;
+  dActivePage = 0;
+  document.getElementById('dListBaslik').textContent = 'TÜM HAREKETLER';
   document.querySelectorAll('#dDots .dcek-dot').forEach((d,i)=> d.classList.toggle('active', i===0));
   document.getElementById('dEkstreOverlay').classList.add('show');
 }
@@ -2576,6 +2582,7 @@ function openCariEditForm(){
   const REVEAL_WIDTH = 96;
   let startX=0, baseX=0, dragging=false, moved=false, lastX=0;
   card.addEventListener('pointerdown', (e)=>{
+    if(e.target.closest('.dcard-pager')) return;
     dragging = true; moved = false;
     startX = e.clientX; lastX = e.clientX;
     baseX = card.classList.contains('swiped') ? -REVEAL_WIDTH : 0;
@@ -2913,46 +2920,67 @@ function renderDetail(){
 
 function renderCekSayfalari(c){
   const list = c.transactions || [];
-  document.getElementById('dGenelToplamBaslik').textContent = fmt(cariBalance(c));
+  const cekAlinan = list.filter(t => t.cek && !t.ciro);
+  const tahsilatlar = list.filter(t => t.type === 'TAHSİLAT');
+  const odemeler = list.filter(t => t.type === 'ÖDEME');
+  const cekCiro = list.filter(t => t.cek && t.ciro);
 
-  function basitSatir(t){
-    const amt = Math.abs(t.amount);
-    const dateStr = new Date(t.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'});
-    return `
-      <div class="tx-row">
-        <div class="tx-left"><div class="tx-type pos">${dateStr}</div>${t.desc ? `<div class="tx-desc">${t.desc}</div>` : ''}</div>
-        <div class="tx-amount">${fmtPlain(amt)}</div>
-      </div>`;
-  }
-  function sayfaDoldur(filtered, listId, toplamId, bosMetin){
-    const el = document.getElementById(listId);
-    el.innerHTML = filtered.length
-      ? filtered.slice().sort((a,b)=> new Date(b.date) - new Date(a.date)).map(basitSatir).join('')
-      : `<div class="empty-tx">${bosMetin}</div>`;
-    document.getElementById(toplamId).textContent = fmt(filtered.reduce((s,t)=> s + Math.abs(t.amount), 0));
-  }
+  document.getElementById('dCardCekAlinan').textContent = fmt(cekAlinan.reduce((s,t)=> s + Math.abs(t.amount), 0));
+  document.getElementById('dCardTahsilat').textContent = fmt(tahsilatlar.reduce((s,t)=> s + Math.abs(t.amount), 0));
+  document.getElementById('dCardOdeme').textContent = fmt(odemeler.reduce((s,t)=> s + Math.abs(t.amount), 0));
+  document.getElementById('dCardCekCiro').textContent = fmt(cekCiro.reduce((s,t)=> s + Math.abs(t.amount), 0));
 
-  sayfaDoldur(list.filter(t => t.cek && !t.ciro), 'dListCekAlinan', 'dCekAlinanToplam', 'Henüz alınan çek yok');
-  sayfaDoldur(list.filter(t => t.type === 'TAHSİLAT'), 'dListTahsilat', 'dTahsilatToplam', 'Henüz tahsilat yok');
-  sayfaDoldur(list.filter(t => t.type === 'ÖDEME'), 'dListOdeme', 'dOdemeToplam', 'Henüz ödeme yok');
-  sayfaDoldur(list.filter(t => t.cek && t.ciro), 'dListCekCiro', 'dCekCiroToplam', 'Henüz ciro edilen çek yok');
+  ekstreCekVerisi = { cekAlinan, tahsilatlar, odemeler, cekCiro };
+}
+
+function basitSatirHtml(t){
+  const amt = Math.abs(t.amount);
+  const dateStr = new Date(t.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'});
+  return `
+    <div class="tx-row">
+      <div class="tx-left"><div class="tx-type pos">${dateStr}</div>${t.desc ? `<div class="tx-desc">${t.desc}</div>` : ''}</div>
+      <div class="tx-amount">${fmtPlain(amt)}</div>
+    </div>`;
+}
+
+let ekstreCekVerisi = { cekAlinan:[], tahsilatlar:[], odemeler:[], cekCiro:[] };
+let dActivePage = 0;
+function applyEkstreListFilter(pageIdx){
+  dActivePage = pageIdx;
+  const baslikEl = document.getElementById('dListBaslik');
+  if(pageIdx === 0){
+    baslikEl.textContent = 'TÜM HAREKETLER';
+    renderDetail();
+    return;
+  }
+  let filtered, baslik, bosMetin;
+  if(pageIdx === 1){ filtered = ekstreCekVerisi.cekAlinan; baslik = 'ALINAN ÇEKLER'; bosMetin = 'Henüz alınan çek yok'; }
+  else if(pageIdx === 2){ filtered = ekstreCekVerisi.tahsilatlar; baslik = 'TAHSİLATLAR'; bosMetin = 'Henüz tahsilat yok'; }
+  else if(pageIdx === 3){ filtered = ekstreCekVerisi.odemeler; baslik = 'ÖDEMELER'; bosMetin = 'Henüz ödeme yok'; }
+  else { filtered = ekstreCekVerisi.cekCiro; baslik = 'CİRO EDİLEN ÇEKLER'; bosMetin = 'Henüz ciro edilen çek yok'; }
+  baslikEl.textContent = baslik;
+  const dListEl = document.getElementById('dList');
+  dListEl.innerHTML = filtered.length
+    ? filtered.slice().sort((a,b)=> new Date(b.date) - new Date(a.date)).map(basitSatirHtml).join('')
+    : `<div class="empty-tx">${bosMetin}</div>`;
 }
 
 (function(){
-  const pager = document.getElementById('dPager');
+  const cardPager = document.getElementById('dCardPager');
   const dots = document.querySelectorAll('#dDots .dcek-dot');
   let scrollTimeout;
-  pager.addEventListener('scroll', () => {
+  cardPager.addEventListener('scroll', () => {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(() => {
-      const idx = Math.round(pager.scrollLeft / pager.clientWidth);
+      const idx = Math.round(cardPager.scrollLeft / cardPager.clientWidth);
       dots.forEach((d,i)=> d.classList.toggle('active', i===idx));
+      if(idx !== dActivePage) applyEkstreListFilter(idx);
     }, 60);
   });
   dots.forEach(dot=>{
     dot.onclick = () => {
       const i = parseInt(dot.dataset.i, 10);
-      pager.scrollTo({left: i * pager.clientWidth, behavior:'smooth'});
+      cardPager.scrollTo({left: i * cardPager.clientWidth, behavior:'smooth'});
     };
   });
 })();
