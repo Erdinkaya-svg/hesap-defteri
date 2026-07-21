@@ -201,9 +201,9 @@
   .dcek-page-total{font-size:15px;font-weight:800;color:var(--ink);}
   .dcek-dots{display:flex;justify-content:center;gap:6px;margin-top:8px;}
   .dcek-dot{width:6px;height:6px;border-radius:50%;background:#d5dade;transition:background .2s,width .2s;}
-  .dcard-pager{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;}
-  .dcard-pager::-webkit-scrollbar{display:none;}
-  .dcard-page{flex:0 0 100%;min-width:100%;scroll-snap-align:start;box-sizing:border-box;min-height:56px;}
+  .dcard-pager{overflow:hidden;position:relative;}
+  .dcard-track{display:flex;width:500%;}
+  .dcard-page{flex:0 0 20%;min-width:20%;box-sizing:border-box;}
   .dcek-dot.active{background:var(--accent);width:16px;border-radius:3px;}
   .overlay.show{display:flex;}
   .modal{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px 20px 26px 20px;}
@@ -656,6 +656,7 @@
           <span class="cari-card-logo"><i class="c1"></i><i class="c2"></i></span>
         </div>
         <div class="dcard-pager" id="dCardPager">
+          <div class="dcard-track" id="dCardTrack">
           <div class="dcard-page" data-page="0">
             <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:10px;">
               <div class="cari-card-name" id="dEkstreCardName" style="font-size:21px;font-weight:800;color:#fff;margin-top:0;letter-spacing:.2px;">Hesap Adı</div>
@@ -678,6 +679,7 @@
           <div class="dcard-page" data-page="4">
             <div class="cari-card-name" style="font-size:11px;letter-spacing:.4px;opacity:.7;margin-top:10px;">CİRO EDİLEN ÇEKLER</div>
             <div class="cari-card-balance" id="dCardCekCiro" style="margin-top:4px;">0,00₺</div>
+          </div>
           </div>
         </div>
         <div class="cari-card-bottom">
@@ -2529,11 +2531,7 @@ function renderEkstreInfo(){
 }
 function showDEkstreOverlay(){
   resetEkstreCardSwipe();
-  const cardPager = document.getElementById('dCardPager');
-  cardPager.scrollLeft = 0;
-  dActivePage = 0;
-  document.getElementById('dListBaslik').textContent = 'TÜM HAREKETLER';
-  document.querySelectorAll('#dDots .dcek-dot').forEach((d,i)=> d.classList.toggle('active', i===0));
+  goToCardPage(0, false);
   document.getElementById('dEkstreOverlay').classList.add('show');
 }
 function openCariEkstrePopup(id, ledgerKey){
@@ -2923,23 +2921,51 @@ function applyEkstreListFilter(pageIdx){
     : `<div class="empty-tx">${bosMetin}</div>`;
 }
 
+function goToCardPage(idx, animate){
+  const track = document.getElementById('dCardTrack');
+  track.style.transition = animate === false ? 'none' : 'transform .25s ease';
+  track.style.transform = `translateX(-${idx * 20}%)`;
+  document.querySelectorAll('#dDots .dcek-dot').forEach((d,i)=> d.classList.toggle('active', i===idx));
+  applyEkstreListFilter(idx);
+}
+
 (function(){
-  const cardPager = document.getElementById('dCardPager');
+  const pager = document.getElementById('dCardPager');
+  const track = document.getElementById('dCardTrack');
   const dots = document.querySelectorAll('#dDots .dcek-dot');
-  let scrollTimeout;
-  cardPager.addEventListener('scroll', () => {
-    clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-      const idx = Math.round(cardPager.scrollLeft / cardPager.clientWidth);
-      dots.forEach((d,i)=> d.classList.toggle('active', i===idx));
-      if(idx !== dActivePage) applyEkstreListFilter(idx);
-    }, 60);
+  let startX = 0, lastX = 0, dragging = false, moved = false, baseIdx = 0;
+
+  pager.addEventListener('pointerdown', (e)=>{
+    dragging = true; moved = false;
+    startX = e.clientX; lastX = e.clientX;
+    baseIdx = dActivePage;
+    track.style.transition = 'none';
   });
+  pager.addEventListener('pointermove', (e)=>{
+    if(!dragging) return;
+    lastX = e.clientX;
+    const delta = lastX - startX;
+    if(Math.abs(delta) > 6) moved = true;
+    const pct = (delta / pager.clientWidth) * 20;
+    let x = -(baseIdx * 20) + pct;
+    x = Math.max(-80, Math.min(0, x));
+    track.style.transform = `translateX(${x}%)`;
+  });
+  function finish(){
+    if(!dragging) return;
+    dragging = false;
+    const delta = lastX - startX;
+    let newIdx = baseIdx;
+    if(Math.abs(delta) > pager.clientWidth * 0.18){
+      newIdx = delta < 0 ? baseIdx + 1 : baseIdx - 1;
+    }
+    newIdx = Math.max(0, Math.min(4, newIdx));
+    goToCardPage(newIdx, true);
+  }
+  pager.addEventListener('pointerup', finish);
+  pager.addEventListener('pointercancel', finish);
   dots.forEach(dot=>{
-    dot.onclick = () => {
-      const i = parseInt(dot.dataset.i, 10);
-      cardPager.scrollTo({left: i * cardPager.clientWidth, behavior:'smooth'});
-    };
+    dot.onclick = () => goToCardPage(parseInt(dot.dataset.i, 10), true);
   });
 })();
 
