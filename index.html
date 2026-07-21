@@ -2927,7 +2927,11 @@ function goToCardPage(idx, animate){
   track.style.transition = animate === false ? 'none' : 'transform .25s ease';
   track.style.transform = `translateX(-${idx * (100/6)}%)`;
   document.querySelectorAll('#dDots .dcek-dot').forEach((d,i)=> d.classList.toggle('active', i===idx));
-  if(idx <= 4) applyEkstreListFilter(idx);
+  if(idx <= 4){
+    applyEkstreListFilter(idx);
+  } else {
+    dActivePage = idx;
+  }
 }
 
 (function(){
