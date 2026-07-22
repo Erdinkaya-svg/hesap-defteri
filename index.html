@@ -188,6 +188,17 @@
   .seg button.active.income{background:var(--green);color:#fff;}
   .seg button.active.expense{background:var(--red);color:#fff;}
   .field{margin-bottom:12px;}
+  /* iOS "Ayarlar" tarzı gruplu liste görünümü — sadece çek/tahsilat düzenleme
+     formunda kullanılıyor (.field genel sınıfı diğer tüm formlarda değişmeden
+     kalıyor, burada onun yerine .field-ios kullanılıyor). */
+  #quickTxModal, #cekWizModal{background:#f2f2f7;}
+  .ios-card{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:14px;}
+  .field-ios{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line);margin:0;}
+  .field-ios:last-child{border-bottom:none;}
+  .field-ios label{font-size:14.5px;font-weight:500;color:var(--ink);flex-shrink:0;margin:0;}
+  .field-ios input, .field-ios select{border:none;background:transparent;font-size:15px;color:var(--ink);text-align:right;flex:1;min-width:0;padding:0;}
+  .field-ios input::placeholder{color:#c3cbce;}
+  .field-ios input:focus, .field-ios select:focus{outline:none;}
   .cari-input-row{display:flex;gap:8px;align-items:stretch;}
   .cari-input-row input{flex:1;min-width:0;}
   .cari-sec-btn{flex-shrink:0;width:46px;border:1px solid #dfe5e7;border-radius:10px;background:#fbfcfc;color:var(--accent);font-size:18px;cursor:pointer;}
@@ -826,77 +837,82 @@
     <h3 id="quickTxTitle" style="margin-bottom:14px;">Tahsilat</h3>
     <input type="text" inputmode="decimal" id="quickTxAmount" placeholder="0,00" style="width:100%;box-sizing:border-box;margin:14px 0 10px 0;padding:18px 12px;font-size:24px;font-weight:700;text-align:center;border:1px solid var(--line);border-radius:12px;color:var(--ink);">
     <div id="quickTxAmountUyari" class="hidden" style="color:#c0392b;font-size:12.5px;text-align:center;margin:-6px 0 10px 0;font-weight:600;">Lütfen tutarı girin.</div>
-    <div class="field" style="margin-bottom:12px;"><label>Tarih</label><input type="date" id="quickTxTarih" style="width:100%;box-sizing:border-box;padding:12px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;color:var(--ink);"></div>
+    <div class="ios-card">
+      <div class="field-ios"><label>Tarih</label><input type="date" id="quickTxTarih"></div>
+    </div>
 
-    <div id="tahsilatYontemRow" class="hidden" style="margin-bottom:14px;">
-      <label style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">ÖDEME YÖNTEMİ</label>
-      <button type="button" id="tahYontemSecBtn" style="width:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;font-weight:700;font-size:14px;cursor:pointer;color:var(--ink);">
-        <span id="tahYontemSecLabel">Nakit Ödemesi</span><span style="color:var(--muted);">›</span>
+    <div id="tahsilatYontemRow" class="hidden ios-card" style="margin-bottom:14px;">
+      <button type="button" id="tahYontemSecBtn" class="field-ios" style="width:100%;border:none;background:none;cursor:pointer;">
+        <label>Ödeme Yöntemi</label><span><span id="tahYontemSecLabel" style="color:var(--muted);">Nakit Ödemesi</span><span style="color:var(--muted);"> ›</span></span>
       </button>
     </div>
 
-    <div class="sk-toggle hidden" id="quickTxCekToggleRow">
-      <div class="sk-toggle-switch" id="quickTxCekToggle"><div class="knob"></div></div>
-      <span style="font-size:14px;font-weight:600;">Çek mi?</span>
-    </div>
-    <div class="sk-toggle hidden" id="quickTxCiroRow">
-      <div class="sk-toggle-switch" id="quickTxCiroToggle"><div class="knob"></div></div>
-      <span style="font-size:14px;font-weight:600;">Ciro Edildi mi?</span>
+    <div class="ios-card">
+      <div class="sk-toggle hidden field-ios" id="quickTxCekToggleRow" style="padding:10px 14px;">
+        <label style="font-size:14.5px;font-weight:500;">Çek mi?</label>
+        <div class="sk-toggle-switch" id="quickTxCekToggle"><div class="knob"></div></div>
+      </div>
+      <div class="sk-toggle hidden field-ios" id="quickTxCiroRow" style="padding:10px 14px;">
+        <label style="font-size:14.5px;font-weight:500;">Ciro Edildi mi?</label>
+        <div class="sk-toggle-switch" id="quickTxCiroToggle"><div class="knob"></div></div>
+      </div>
     </div>
 
     <div id="cekDetayForm" class="hidden">
       <div id="cekStep-no" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Çek Numarası</label><input id="cekNo" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>Çek Numarası</label><input id="cekNo"></div></div>
       </div>
 
       <div id="cekStep-banka" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:8px;"><label>Banka Adı</label></div>
-        <input type="hidden" id="cekBanka">
-        <div style="position:relative;">
-          <div id="cekBankaWheel" style="height:180px;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;padding:72px 0;box-sizing:border-box;"></div>
-          <div style="position:absolute;top:72px;left:0;right:0;height:36px;border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line);pointer-events:none;"></div>
+        <div class="ios-card" style="padding:12px 14px 4px 14px;">
+          <label style="font-size:14.5px;font-weight:500;color:var(--ink);display:block;margin-bottom:2px;">Banka Adı</label>
+          <input type="hidden" id="cekBanka">
+          <div style="position:relative;">
+            <div id="cekBankaWheel" style="height:180px;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;padding:72px 0;box-sizing:border-box;"></div>
+            <div style="position:absolute;top:72px;left:0;right:0;height:36px;border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line);pointer-events:none;"></div>
+          </div>
         </div>
       </div>
 
       <div id="cekStep-sube" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Şube Adı</label><input id="cekSube" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>Şube Adı</label><input id="cekSube"></div></div>
       </div>
 
       <div id="cekStep-iban" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>IBAN / Hesap No (isteğe bağlı)</label><input id="cekIban" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>IBAN (isteğe bağlı)</label><input id="cekIban"></div></div>
       </div>
 
       <div id="cekStep-duzenleme" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Düzenleme Tarihi</label><input type="date" id="cekDuzenlemeTarihi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>Düzenleme Tarihi</label><input type="date" id="cekDuzenlemeTarihi"></div></div>
       </div>
 
       <div id="cekStep-vade" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Vade Tarihi *</label><input type="date" id="cekVadeTarihi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-        <div id="cekVadeUyari" class="hidden" style="color:#c0392b;font-size:12px;margin:-6px 0 10px 0;">Vade tarihi zorunludur.</div>
+        <div class="ios-card"><div class="field-ios"><label>Vade Tarihi *</label><input type="date" id="cekVadeTarihi"></div></div>
+        <div id="cekVadeUyari" class="hidden" style="color:#c0392b;font-size:12px;margin:6px 2px 0 2px;">Vade tarihi zorunludur.</div>
       </div>
 
       <div id="cekStep-kesideTarihi" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Keşide Tarihi</label><input type="date" id="cekKesideTarihi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>Keşide Tarihi</label><input type="date" id="cekKesideTarihi"></div></div>
       </div>
 
       <div id="cekStep-alindigi" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Ne Zaman Alındı</label><input type="date" id="cekAlindigiTarih" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>Ne Zaman Alındı</label><input type="date" id="cekAlindigiTarih"></div></div>
       </div>
 
       <div id="cekStep-kesideci" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Keşideci (çeki düzenleyen)</label><input id="cekKesideci" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>Keşideci</label><input id="cekKesideci"></div></div>
       </div>
 
       <div id="cekStep-kesideYeri" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Keşide Yeri</label><input id="cekKesideYeri" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>Keşide Yeri</label><input id="cekKesideYeri"></div></div>
       </div>
 
       <div id="cekStep-lehtar" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Lehtar (kime düzenlenmiş)</label><input id="cekLehtar" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>Lehtar</label><input id="cekLehtar"></div></div>
       </div>
 
       <div id="cekStep-kimeCiro" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:10px;"><label>Kime Ciro Edildi</label><input id="cekKimeCiroEdildi" placeholder="Henüz ciro edilmediyse boş bırakın" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div class="ios-card"><div class="field-ios"><label>Kime Ciro Edildi</label><input id="cekKimeCiroEdildi" placeholder="Boş bırakılabilir"></div></div>
       </div>
     </div>
 
