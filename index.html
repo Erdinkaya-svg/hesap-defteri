@@ -855,10 +855,6 @@
       <div class="field" style="margin-bottom:10px;"><label>Keşide Yeri</label><input id="cekKesideYeri" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
       <div class="field" style="margin-bottom:10px;"><label>Lehtar (kime düzenlenmiş)</label><input id="cekLehtar" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
       <div class="field" style="margin-bottom:10px;"><label>Kime Ciro Edildi</label><input id="cekKimeCiroEdildi" placeholder="Henüz ciro edilmediyse boş bırakın" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="sk-toggle" style="margin-bottom:4px;">
-        <div class="sk-toggle-switch" id="cekCiroDurumToggle"><div class="knob"></div></div>
-        <span style="font-size:14px;font-weight:600;">Cirolu mu?</span>
-      </div>
     </div>
 
     <button id="quickTxSave" style="width:100%;padding:14px 0;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;">Kaydet</button>
@@ -2647,8 +2643,6 @@ function cekFormuDoldur(tx){
   document.getElementById('cekLehtar').value = d.lehtar || '';
   document.getElementById('cekKimeCiroEdildi').value = d.kimeCiroEdildi || '';
   document.getElementById('cekVadeUyari').classList.add('hidden');
-  const ciroToggle = document.getElementById('cekCiroDurumToggle');
-  ciroToggle.classList.toggle('on', !!d.cirolu);
 }
 function applyQuickTxTypeVisibility(type){
   const isTahsilat = type === 'TAHSİLAT';
@@ -2746,7 +2740,6 @@ document.getElementById('quickTxSave').onclick = () => {
       cariAdi: c.name,
       lehtar: document.getElementById('cekLehtar').value.trim(),
       kimeCiroEdildi: document.getElementById('cekKimeCiroEdildi').value.trim(),
-      cirolu: document.getElementById('cekCiroDurumToggle').classList.contains('on'),
       alindigiTarih: document.getElementById('cekAlindigiTarih').value || secilenTarih || tarihIso.slice(0,10)
     };
   }
