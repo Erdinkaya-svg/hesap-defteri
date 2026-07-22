@@ -1360,7 +1360,6 @@
 
 <div class="detail-screen" id="kasaCekScreen">
   <div class="d-header">
-    <button class="d-back" id="kasaCekBack">‹</button>
     <div class="d-title">Gelen Çekler</div>
   </div>
   <div class="d-list" id="gelenCeklerList" style="padding:16px 16px 100px 16px;"></div>
@@ -3650,12 +3649,6 @@ document.getElementById('gelenCeklerCard').onclick = () => {
   renderCekListInto('gelenCeklerList');
   kasaScreen.classList.remove('show');
   document.getElementById('kasaCekScreen').classList.add('show');
-  nudge();
-};
-document.getElementById('kasaCekBack').onclick = () => {
-  document.getElementById('kasaCekScreen').classList.remove('show');
-  kasaScreen.classList.add('show');
-  renderKasa();
   nudge();
 };
 
