@@ -1375,17 +1375,6 @@
   </div>
 </div>
 
-<div class="receipt-overlay" id="cekDetayOverlay">
-  <div class="receipt-card">
-    <div class="receipt-head">
-      <div class="r-type" id="cdType">ÇEK</div>
-      <div class="r-date" id="cdDate">--</div>
-    </div>
-    <div class="receipt-body" id="cdBody"></div>
-    <button class="receipt-close" id="cdClose">Kapat</button>
-  </div>
-</div>
-
 
 <div class="receipt-overlay" id="receiptOverlay">
   <div class="receipt-card">
@@ -2544,18 +2533,10 @@ let activeCariId = null;
 let currentDetailCari = null;
 let activeTxType = 'SATIŞ';
 
-function openDetail(id){
-  activeCariId = id;
-  detailScreen.classList.add('show');
-  renderDetail();
-}
 function closeDetail(){
   detailScreen.classList.remove('show');
   activeCariId = null;
 }
-// Karta normal dokunuşta artık tam ekran yerine sadece ekstre pop-up'ı açılır.
-// Sola kaydırınca çıkan Satış/Tahsilat/Alış/Ödeme butonları hâlâ tam ekranı
-// (openDetail) kullanır, çünkü orada tutar girip klavye ile kaydetmek gerekir.
 let selectedCariKey = null;
 function renderEkstreInfo(){
   const c = currentDetailCari;
@@ -3830,40 +3811,6 @@ function renderCekSenet(){
   buildCekSenetListData();
   renderCekListInto('gelenCeklerList');
 }
-
-// Çek Senet listesindeki bir satıra dokununca, girişte kaydedilen tüm çek
-// bilgilerini olduğu gibi (salt-okunur) gösteren detay ekranı.
-function cdTarih(v){ return v ? new Date(v).toLocaleDateString('tr-TR') : '—'; }
-function openCekDetay(idx){
-  const r = cekSenetListData[idx];
-  if(!r) return;
-  const t = r.tx, d = t.cekDetay || {};
-  const durum = t.ciro ? 'Ciro Edildi' : 'Kasada';
-  document.getElementById('cdType').textContent = 'ÇEK';
-  document.getElementById('cdDate').textContent = cdTarih(t.date);
-  const rows = [
-    ['Çeki Veren Müşteri', r.cari.name || '—'],
-    ['Tutar', fmtPlain(Math.abs(t.amount)) + '₺'],
-    ['Çek Numarası', d.no || '—'],
-    ['Banka Adı', d.banka || '—'],
-    ['Şube Adı', d.sube || '—'],
-    ['IBAN / Hesap No', d.iban || '—'],
-    ['Düzenleme Tarihi', cdTarih(d.duzenlemeTarihi)],
-    ['Vade Tarihi', cdTarih(d.vadeTarihi)],
-    ['Keşide Tarihi', cdTarih(d.kesideTarihi)],
-    ['Keşideci', d.kesideci || '—'],
-    ['Keşide Yeri', d.kesideYeri || '—'],
-    ['Lehtar', d.lehtar || '—'],
-    ['Alındığı Tarih', cdTarih(d.alindigiTarih)],
-    ['Çekin Durumu', durum]
-  ];
-  if(t.ciro && d.kimeCiroEdildi) rows.push(['Kime Ciro Edildi', d.kimeCiroEdildi]);
-  document.getElementById('cdBody').innerHTML = rows.map(([lbl,val])=>
-    `<div class="receipt-line"><span class="rl-lbl">${lbl}</span><span class="rl-val">${val}</span></div>`
-  ).join('');
-  document.getElementById('cekDetayOverlay').classList.add('show');
-}
-document.getElementById('cdClose').onclick = () => { document.getElementById('cekDetayOverlay').classList.remove('show'); };
 
 // Çek Senet listesindeki "Değiştir": ilgili carinin ekstresini arka planda
 // hesaplayıp (doğru bakiye için), aynı fiş düzenleme akışını (openTxDetay/openReceipt)
