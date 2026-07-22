@@ -3549,15 +3549,18 @@ document.getElementById('kasaAddBtn').onclick = openModal;
 function renderKasa(){
   document.getElementById('kasaToplam').textContent = fmt(state.cash);
 
-  let cekAdet = 0, cekToplam = 0;
+  let cekAdet = 0, cekToplam = 0, ciroAdet = 0;
   state.cari.forEach(c=>{
     (c.transactions||[]).forEach(t=>{
-      if(t.cek && !t.ciro){ cekAdet++; cekToplam += Math.abs(t.amount); }
+      if(t.cek){
+        cekAdet++; cekToplam += Math.abs(t.amount);
+        if(t.ciro) ciroAdet++;
+      }
     });
   });
   document.getElementById('gelenCeklerToplam').textContent = fmtPlain(cekToplam) + '₺';
   document.getElementById('gelenCeklerAlt').textContent = cekAdet
-    ? cekAdet + ' çek kasada bekliyor'
+    ? (cekAdet + ' çek' + (ciroAdet ? ' (' + (cekAdet - ciroAdet) + ' kasada, ' + ciroAdet + ' ciro edildi)' : ' kasada bekliyor'))
     : 'Kasada bekleyen çek yok';
   buildCekSenetListData();
   renderCekListInto('gelenCeklerList');
