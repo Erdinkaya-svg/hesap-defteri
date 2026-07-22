@@ -842,19 +842,62 @@
     </div>
 
     <div id="cekDetayForm" class="hidden" style="margin-top:4px;border-top:1px solid var(--line);padding-top:12px;">
-      <div class="field" style="margin-bottom:10px;"><label>Çek Numarası</label><input id="cekNo" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>Banka Adı</label><input id="cekBanka" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>Şube Adı</label><input id="cekSube" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>IBAN / Hesap No (isteğe bağlı)</label><input id="cekIban" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>Düzenleme Tarihi</label><input type="date" id="cekDuzenlemeTarihi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>Vade Tarihi *</label><input type="date" id="cekVadeTarihi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div id="cekVadeUyari" class="hidden" style="color:#c0392b;font-size:12px;margin:-6px 0 10px 0;">Vade tarihi zorunludur.</div>
-      <div class="field" style="margin-bottom:10px;"><label>Keşide Tarihi</label><input type="date" id="cekKesideTarihi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>Ne Zaman Alındı</label><input type="date" id="cekAlindigiTarih" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>Keşideci (çeki düzenleyen)</label><input id="cekKesideci" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>Keşide Yeri</label><input id="cekKesideYeri" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>Lehtar (kime düzenlenmiş)</label><input id="cekLehtar" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-      <div class="field" style="margin-bottom:10px;"><label>Kime Ciro Edildi</label><input id="cekKimeCiroEdildi" placeholder="Henüz ciro edilmediyse boş bırakın" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      <div id="cekWizProgress" style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.3px;"></div>
+
+      <div id="cekStep-no" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Çek Numarası</label><input id="cekNo" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div id="cekStep-banka" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:8px;"><label>Banka Adı</label><input id="cekBanka" placeholder="Listeden seç ya da kendin yaz" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div id="cekBankaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+      </div>
+
+      <div id="cekStep-sube" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Şube Adı</label><input id="cekSube" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div id="cekStep-iban" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>IBAN / Hesap No (isteğe bağlı)</label><input id="cekIban" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div id="cekStep-duzenleme" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Düzenleme Tarihi</label><input type="date" id="cekDuzenlemeTarihi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div id="cekStep-vade" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Vade Tarihi *</label><input type="date" id="cekVadeTarihi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+        <div id="cekVadeUyari" class="hidden" style="color:#c0392b;font-size:12px;margin:-6px 0 10px 0;">Vade tarihi zorunludur.</div>
+      </div>
+
+      <div id="cekStep-kesideTarihi" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Keşide Tarihi</label><input type="date" id="cekKesideTarihi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div id="cekStep-alindigi" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Ne Zaman Alındı</label><input type="date" id="cekAlindigiTarih" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div id="cekStep-kesideci" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Keşideci (çeki düzenleyen)</label><input id="cekKesideci" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div id="cekStep-kesideYeri" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Keşide Yeri</label><input id="cekKesideYeri" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div id="cekStep-lehtar" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Lehtar (kime düzenlenmiş)</label><input id="cekLehtar" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div id="cekStep-kimeCiro" class="cek-wiz-step">
+        <div class="field" style="margin-bottom:10px;"><label>Kime Ciro Edildi</label><input id="cekKimeCiroEdildi" placeholder="Henüz ciro edilmediyse boş bırakın" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button type="button" id="cekWizBack" class="hidden" style="flex:0 0 84px;padding:12px 0;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;">‹ Geri</button>
+        <button type="button" id="cekWizNext" style="flex:1;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;font-size:14.5px;cursor:pointer;">İleri</button>
+      </div>
     </div>
 
     <button id="quickTxSave" style="width:100%;padding:14px 0;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;">Kaydet</button>
@@ -2608,8 +2651,48 @@ function tahYontemSec(yontem){
   tahsilatYontem = yontem;
   const labelMap = { nakit: 'Nakit Ödemesi', cek: 'Çek Ödemesi', borc: 'Borç Ekle', alacak: 'Alacak Ekle' };
   document.getElementById('tahYontemSecLabel').textContent = labelMap[yontem] || 'Nakit Ödemesi';
-  document.getElementById('cekDetayForm').classList.toggle('hidden', yontem !== 'cek');
+  const isCek = yontem === 'cek';
+  document.getElementById('cekDetayForm').classList.toggle('hidden', !isCek);
+  document.getElementById('quickTxSave').classList.toggle('hidden', isCek);
+  if(isCek){ cekWizStep = 0; renderCekWizStep(); }
 }
+// Çek detay formu, kullanıcı isteğiyle tek seferde gösterilen uzun form yerine
+// adım adım (bir soru bir ekranda) soran bir sihirbaza çevrildi. Her adımın
+// input'u aynı id'yi koruyor (quickTxSave/cekFormuDoldur değişmedi), sadece
+// görünürlük JS ile adım adım kontrol ediliyor.
+const cekWizSteps = ['cekStep-no','cekStep-banka','cekStep-sube','cekStep-iban','cekStep-duzenleme','cekStep-vade','cekStep-kesideTarihi','cekStep-alindigi','cekStep-kesideci','cekStep-kesideYeri','cekStep-lehtar','cekStep-kimeCiro'];
+let cekWizStep = 0;
+const TURK_BANKALARI = ['Ziraat Bankası','İş Bankası','Garanti BBVA','Akbank','Yapı Kredi','VakıfBank','Halkbank','QNB Finansbank','DenizBank','TEB','ING','HSBC','Kuveyt Türk','Şekerbank'];
+function renderCekBankaChips(){
+  const wrap = document.getElementById('cekBankaChips');
+  if(!wrap) return;
+  wrap.innerHTML = TURK_BANKALARI.map(b=>`<button type="button" class="cek-banka-chip" data-b="${b}" style="border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 12px;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;">${b}</button>`).join('');
+  wrap.querySelectorAll('.cek-banka-chip').forEach(btn=>{
+    btn.onclick = () => { document.getElementById('cekBanka').value = btn.dataset.b; };
+  });
+}
+renderCekBankaChips();
+function renderCekWizStep(){
+  cekWizSteps.forEach((id,i)=> document.getElementById(id).classList.toggle('hidden', i !== cekWizStep));
+  document.getElementById('cekWizProgress').textContent = 'Adım ' + (cekWizStep+1) + ' / ' + cekWizSteps.length;
+  document.getElementById('cekWizBack').classList.toggle('hidden', cekWizStep === 0);
+  document.getElementById('cekWizNext').textContent = (cekWizStep === cekWizSteps.length - 1) ? 'Kaydet' : 'İleri';
+}
+document.getElementById('cekWizBack').onclick = () => { if(cekWizStep > 0){ cekWizStep--; renderCekWizStep(); } };
+document.getElementById('cekWizNext').onclick = () => {
+  if(cekWizStep < cekWizSteps.length - 1){
+    cekWizStep++;
+    renderCekWizStep();
+    return;
+  }
+  if(!document.getElementById('cekVadeTarihi').value){
+    cekWizStep = cekWizSteps.indexOf('cekStep-vade');
+    renderCekWizStep();
+    document.getElementById('cekVadeUyari').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('quickTxSave').click();
+};
 document.getElementById('tahYontemSecBtn').onclick = () => { document.getElementById('tahYontemOverlay').classList.add('show'); };
 document.getElementById('tahYontemNakitSecBtn').onclick = () => {
   quickTxType = 'TAHSİLAT';
