@@ -850,8 +850,12 @@
       </div>
 
       <div id="cekStep-banka" class="cek-wiz-step">
-        <div class="field" style="margin-bottom:8px;"><label>Banka Adı</label><input id="cekBanka" placeholder="Listeden seç ya da kendin yaz" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
-        <div id="cekBankaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+        <div class="field" style="margin-bottom:8px;"><label>Banka Adı</label></div>
+        <input type="hidden" id="cekBanka">
+        <div style="position:relative;">
+          <div id="cekBankaWheel" style="height:180px;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;padding:72px 0;box-sizing:border-box;"></div>
+          <div style="position:absolute;top:72px;left:0;right:0;height:36px;border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line);pointer-events:none;"></div>
+        </div>
       </div>
 
       <div id="cekStep-sube" class="cek-wiz-step">
@@ -2670,22 +2674,45 @@ function tahYontemSec(yontem){
 // çıkılabilir (tek zorunlu alan olan Vade Tarihi boşsa oraya yönlendirilir).
 const cekWizSteps = ['cekStep-no','cekStep-banka','cekStep-vade','cekStep-sube','cekStep-iban','cekStep-duzenleme','cekStep-kesideTarihi','cekStep-alindigi','cekStep-kesideci','cekStep-kesideYeri','cekStep-lehtar','cekStep-kimeCiro'];
 let cekWizStep = 0;
-const TURK_BANKALARI = ['Garanti BBVA','Yapı Kredi','Ziraat Bankası','İş Bankası','Akbank','VakıfBank','Halkbank','QNB Finansbank','DenizBank','TEB','ING','HSBC','Kuveyt Türk','Şekerbank'];
-function renderCekBankaChips(){
-  const wrap = document.getElementById('cekBankaChips');
+const TURK_BANKALARI = ['Garanti BBVA','Yapı Kredi','Ziraat Bankası','İş Bankası','Akbank','VakıfBank','Halkbank','QNB Finansbank','DenizBank','TEB','ING','HSBC','Kuveyt Türk','Şekerbank'].sort((a,b)=>a.localeCompare(b,'tr'));
+const CEK_BANKA_BOS = '— (Boş)';
+const CEK_BANKA_WHEEL_ITEMS = [CEK_BANKA_BOS, ...TURK_BANKALARI];
+const CEK_BANKA_ITEM_H = 36;
+// Serbest yazma yok — sadece bu alfabetik tekerlekten seçim yapılıyor,
+// gizli #cekBanka input'u (quickTxSave/cekFormuDoldur değişmedi) senkron tutuluyor.
+function renderCekBankaWheel(){
+  const wrap = document.getElementById('cekBankaWheel');
   if(!wrap) return;
-  wrap.innerHTML = TURK_BANKALARI.map(b=>`<button type="button" class="cek-banka-chip" data-b="${b}" style="border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 12px;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;">${b}</button>`).join('');
-  wrap.querySelectorAll('.cek-banka-chip').forEach(btn=>{
-    btn.onclick = () => { document.getElementById('cekBanka').value = btn.dataset.b; };
+  wrap.innerHTML = CEK_BANKA_WHEEL_ITEMS.map(b=>`<div class="cek-banka-wheel-item" data-b="${b}" style="height:${CEK_BANKA_ITEM_H}px;line-height:${CEK_BANKA_ITEM_H}px;text-align:center;font-size:15px;color:var(--muted);scroll-snap-align:center;">${b}</div>`).join('');
+  let scrollTimer = null;
+  wrap.onscroll = () => { clearTimeout(scrollTimer); scrollTimer = setTimeout(()=>applyCekBankaWheelSelection(wrap), 80); };
+}
+function applyCekBankaWheelSelection(wrap){
+  const idx = Math.max(0, Math.min(CEK_BANKA_WHEEL_ITEMS.length-1, Math.round(wrap.scrollTop / CEK_BANKA_ITEM_H)));
+  const val = CEK_BANKA_WHEEL_ITEMS[idx];
+  document.getElementById('cekBanka').value = (val === CEK_BANKA_BOS) ? '' : val;
+  wrap.querySelectorAll('.cek-banka-wheel-item').forEach((el,i)=>{
+    el.style.fontWeight = i===idx ? '700' : '400';
+    el.style.fontSize = i===idx ? '16px' : '15px';
+    el.style.color = i===idx ? 'var(--ink)' : 'var(--muted)';
   });
 }
-renderCekBankaChips();
+function scrollCekBankaWheelTo(bankaAdi){
+  const wrap = document.getElementById('cekBankaWheel');
+  if(!wrap) return;
+  const found = bankaAdi ? TURK_BANKALARI.indexOf(bankaAdi) : -1;
+  const idx = found === -1 ? 0 : found + 1;
+  wrap.scrollTop = idx * CEK_BANKA_ITEM_H;
+  applyCekBankaWheelSelection(wrap);
+}
+renderCekBankaWheel();
 function showCekWizStep(idx){
   cekWizStep = idx;
   const host = document.getElementById('cekWizFieldHost');
   // Aktif adımı (varsa) yok etmeden gizli havuza geri koy, sonra yeni adımı popup'a taşı.
   while(host.firstChild){ document.getElementById('cekDetayForm').appendChild(host.firstChild); }
   host.appendChild(document.getElementById(cekWizSteps[idx]));
+  if(cekWizSteps[idx] === 'cekStep-banka') requestAnimationFrame(()=>scrollCekBankaWheelTo(document.getElementById('cekBanka').value));
   document.getElementById('cekWizProgress').textContent = 'Soru ' + (idx+1) + ' / ' + cekWizSteps.length;
   document.getElementById('cekWizBack').classList.toggle('hidden', idx === 0);
   const isLast = idx === cekWizSteps.length - 1;
@@ -2747,6 +2774,7 @@ function cekFormuDoldur(tx){
   const bugun = new Date().toISOString().slice(0,10);
   document.getElementById('cekNo').value = d.no || (tx ? '' : nextCekNoOnerisi());
   document.getElementById('cekBanka').value = d.banka || '';
+  scrollCekBankaWheelTo(d.banka || '');
   document.getElementById('cekSube').value = d.sube || '';
   document.getElementById('cekIban').value = d.iban || '';
   document.getElementById('cekDuzenlemeTarihi').value = d.duzenlemeTarihi || bugun;
