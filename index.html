@@ -166,6 +166,9 @@
   .overlay{position:fixed;inset:0;background:rgba(20,30,35,.45);display:none;align-items:flex-end;justify-content:center;z-index:50;}
   .hidden{display:none !important;}
   #tahYontemOverlay{align-items:center;}
+  #cekWizOverlay{align-items:center;}
+  @keyframes cekPopIn{ from{opacity:0;transform:scale(.93) translateY(8px);} to{opacity:1;transform:scale(1) translateY(0);} }
+  #cekWizModal.cek-pop{animation:cekPopIn .18s ease-out;}
   #tahYontemOverlay .modal{border-radius:20px;max-width:320px;}
   #dEkstreOverlay{align-items:flex-start;padding-top:calc(env(safe-area-inset-top) + 14px);}
       .dcek-page{flex:0 0 100%;min-width:100%;scroll-snap-align:start;box-sizing:border-box;padding:0 1px;}
@@ -841,9 +844,7 @@
       <span style="font-size:14px;font-weight:600;">Ciro Edildi mi?</span>
     </div>
 
-    <div id="cekDetayForm" class="hidden" style="margin-top:4px;border-top:1px solid var(--line);padding-top:12px;">
-      <div id="cekWizProgress" style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.3px;"></div>
-
+    <div id="cekDetayForm" class="hidden">
       <div id="cekStep-no" class="cek-wiz-step">
         <div class="field" style="margin-bottom:10px;"><label>Çek Numarası</label><input id="cekNo" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
       </div>
@@ -893,15 +894,23 @@
       <div id="cekStep-kimeCiro" class="cek-wiz-step">
         <div class="field" style="margin-bottom:10px;"><label>Kime Ciro Edildi</label><input id="cekKimeCiroEdildi" placeholder="Henüz ciro edilmediyse boş bırakın" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;"></div>
       </div>
-
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button type="button" id="cekWizBack" class="hidden" style="flex:0 0 84px;padding:12px 0;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;">‹ Geri</button>
-        <button type="button" id="cekWizNext" style="flex:1;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;font-size:14.5px;cursor:pointer;">İleri</button>
-      </div>
     </div>
 
     <button id="quickTxSave" style="width:100%;padding:14px 0;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;">Kaydet</button>
     <button id="quickTxCancel" style="margin-top:8px;width:100%;padding:14px 0;border:none;border-radius:12px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">İptal</button>
+  </div>
+</div>
+
+<div class="overlay" id="cekWizOverlay" style="z-index:96;">
+  <div class="modal" id="cekWizModal" style="border-radius:20px;max-width:340px;padding:26px 22px 22px 22px;">
+    <div id="cekWizProgress" style="font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.4px;margin-bottom:14px;text-align:center;"></div>
+    <div id="cekWizFieldHost"></div>
+    <div id="cekWizDone" class="hidden" style="text-align:center;color:#1f9d64;font-weight:700;font-size:13.5px;margin:2px 0 14px 0;">✓ Bitti — son soru bu</div>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <button type="button" id="cekWizBack" class="hidden" style="flex:0 0 76px;padding:13px 0;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;">‹ Geri</button>
+      <button type="button" id="cekWizNext" style="flex:1;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;padding:13px 0;cursor:pointer;">İleri</button>
+    </div>
+    <button type="button" id="cekWizSaveNow" style="width:100%;border:none;background:none;color:var(--accent);font-weight:700;font-size:13px;padding:12px 0 0 0;cursor:pointer;">Kalanını boş bırak, kaydet</button>
   </div>
 </div>
 
@@ -2663,17 +2672,24 @@ function tahYontemSec(yontem){
   const labelMap = { nakit: 'Nakit Ödemesi', cek: 'Çek Ödemesi', borc: 'Borç Ekle', alacak: 'Alacak Ekle' };
   document.getElementById('tahYontemSecLabel').textContent = labelMap[yontem] || 'Nakit Ödemesi';
   const isCek = yontem === 'cek';
-  document.getElementById('cekDetayForm').classList.toggle('hidden', !isCek);
   document.getElementById('quickTxSave').classList.toggle('hidden', isCek);
-  if(isCek){ cekWizStep = 0; renderCekWizStep(); }
+  if(isCek){
+    document.getElementById('cekWizOverlay').classList.add('show');
+    showCekWizStep(0);
+  } else {
+    document.getElementById('cekWizOverlay').classList.remove('show');
+  }
 }
-// Çek detay formu, kullanıcı isteğiyle tek seferde gösterilen uzun form yerine
-// adım adım (bir soru bir ekranda) soran bir sihirbaza çevrildi. Her adımın
-// input'u aynı id'yi koruyor (quickTxSave/cekFormuDoldur değişmedi), sadece
-// görünürlük JS ile adım adım kontrol ediliyor.
-const cekWizSteps = ['cekStep-no','cekStep-banka','cekStep-sube','cekStep-iban','cekStep-duzenleme','cekStep-vade','cekStep-kesideTarihi','cekStep-alindigi','cekStep-kesideci','cekStep-kesideYeri','cekStep-lehtar','cekStep-kimeCiro'];
+// Çek detay formu, kullanıcı isteğiyle tek uzun form yerine bir soru bir pop-up
+// ekranında soran bir sihirbaza çevrildi. Her adımın input'u aynı id'yi koruyor
+// (quickTxSave/cekFormuDoldur değişmedi) — sadece o adımın alanı, ayrı bir
+// pop-up'ın (cekWizOverlay) içine geçici olarak taşınıyor (appendChild), diğer
+// tüm adımlar görünmez cekDetayForm havuzunda bekliyor. Her adımda "İleri" ile
+// devam edilebilir, "Kalanını boş bırak, kaydet" ile de o an kaydedilip
+// çıkılabilir (tek zorunlu alan olan Vade Tarihi boşsa oraya yönlendirilir).
+const cekWizSteps = ['cekStep-no','cekStep-banka','cekStep-vade','cekStep-sube','cekStep-iban','cekStep-duzenleme','cekStep-kesideTarihi','cekStep-alindigi','cekStep-kesideci','cekStep-kesideYeri','cekStep-lehtar','cekStep-kimeCiro'];
 let cekWizStep = 0;
-const TURK_BANKALARI = ['Ziraat Bankası','İş Bankası','Garanti BBVA','Akbank','Yapı Kredi','VakıfBank','Halkbank','QNB Finansbank','DenizBank','TEB','ING','HSBC','Kuveyt Türk','Şekerbank'];
+const TURK_BANKALARI = ['Garanti BBVA','Yapı Kredi','Ziraat Bankası','İş Bankası','Akbank','VakıfBank','Halkbank','QNB Finansbank','DenizBank','TEB','ING','HSBC','Kuveyt Türk','Şekerbank'];
 function renderCekBankaChips(){
   const wrap = document.getElementById('cekBankaChips');
   if(!wrap) return;
@@ -2683,26 +2699,44 @@ function renderCekBankaChips(){
   });
 }
 renderCekBankaChips();
-function renderCekWizStep(){
-  cekWizSteps.forEach((id,i)=> document.getElementById(id).classList.toggle('hidden', i !== cekWizStep));
-  document.getElementById('cekWizProgress').textContent = 'Adım ' + (cekWizStep+1) + ' / ' + cekWizSteps.length;
-  document.getElementById('cekWizBack').classList.toggle('hidden', cekWizStep === 0);
-  document.getElementById('cekWizNext').textContent = (cekWizStep === cekWizSteps.length - 1) ? 'Kaydet' : 'İleri';
+function showCekWizStep(idx){
+  cekWizStep = idx;
+  const host = document.getElementById('cekWizFieldHost');
+  // Aktif adımı (varsa) yok etmeden gizli havuza geri koy, sonra yeni adımı popup'a taşı.
+  while(host.firstChild){ document.getElementById('cekDetayForm').appendChild(host.firstChild); }
+  host.appendChild(document.getElementById(cekWizSteps[idx]));
+  document.getElementById('cekWizProgress').textContent = 'Soru ' + (idx+1) + ' / ' + cekWizSteps.length;
+  document.getElementById('cekWizBack').classList.toggle('hidden', idx === 0);
+  const isLast = idx === cekWizSteps.length - 1;
+  document.getElementById('cekWizNext').textContent = isLast ? 'Kaydet' : 'İleri';
+  document.getElementById('cekWizDone').classList.toggle('hidden', !isLast);
+  document.getElementById('cekWizSaveNow').classList.toggle('hidden', isLast);
+  const modal = document.getElementById('cekWizModal');
+  modal.classList.remove('cek-pop');
+  void modal.offsetWidth;
+  modal.classList.add('cek-pop');
 }
-document.getElementById('cekWizBack').onclick = () => { if(cekWizStep > 0){ cekWizStep--; renderCekWizStep(); } };
-document.getElementById('cekWizNext').onclick = () => {
-  if(cekWizStep < cekWizSteps.length - 1){
-    cekWizStep++;
-    renderCekWizStep();
-    return;
-  }
+function cekWizTryFinish(){
   if(!document.getElementById('cekVadeTarihi').value){
-    cekWizStep = cekWizSteps.indexOf('cekStep-vade');
-    renderCekWizStep();
+    showCekWizStep(cekWizSteps.indexOf('cekStep-vade'));
     document.getElementById('cekVadeUyari').classList.remove('hidden');
     return;
   }
   document.getElementById('quickTxSave').click();
+  document.getElementById('cekWizOverlay').classList.remove('show');
+}
+document.getElementById('cekWizBack').onclick = () => { if(cekWizStep > 0) showCekWizStep(cekWizStep - 1); };
+document.getElementById('cekWizNext').onclick = () => {
+  if(cekWizStep < cekWizSteps.length - 1){ showCekWizStep(cekWizStep + 1); return; }
+  cekWizTryFinish();
+};
+document.getElementById('cekWizSaveNow').onclick = () => cekWizTryFinish();
+document.getElementById('cekWizOverlay').onclick = (e) => {
+  if(e.target.id === 'cekWizOverlay'){
+    document.getElementById('cekWizOverlay').classList.remove('show');
+    document.getElementById('quickTxOverlay').classList.remove('show');
+    editingTx = null;
+  }
 };
 document.getElementById('tahYontemSecBtn').onclick = () => { document.getElementById('tahYontemOverlay').classList.add('show'); };
 document.getElementById('tahYontemNakitSecBtn').onclick = () => {
@@ -2722,16 +2756,22 @@ document.getElementById('tahYontemCekSecBtn').onclick = () => {
 document.getElementById('tahYontemOverlay').onclick = (e) => {
   if(e.target === document.getElementById('tahYontemOverlay')) document.getElementById('tahYontemOverlay').classList.remove('show');
 };
+function nextCekNoOnerisi(){
+  let count = 0;
+  state.cari.forEach(c => (c.transactions||[]).forEach(t => { if(t.cek) count++; }));
+  return String(count + 1).padStart(4, '0');
+}
 function cekFormuDoldur(tx){
   const d = tx && tx.cekDetay ? tx.cekDetay : {};
-  document.getElementById('cekNo').value = d.no || '';
+  const bugun = new Date().toISOString().slice(0,10);
+  document.getElementById('cekNo').value = d.no || (tx ? '' : nextCekNoOnerisi());
   document.getElementById('cekBanka').value = d.banka || '';
   document.getElementById('cekSube').value = d.sube || '';
   document.getElementById('cekIban').value = d.iban || '';
-  document.getElementById('cekDuzenlemeTarihi').value = d.duzenlemeTarihi || '';
+  document.getElementById('cekDuzenlemeTarihi').value = d.duzenlemeTarihi || bugun;
   document.getElementById('cekVadeTarihi').value = d.vadeTarihi || '';
-  document.getElementById('cekKesideTarihi').value = d.kesideTarihi || '';
-  document.getElementById('cekAlindigiTarih').value = d.alindigiTarih || new Date().toISOString().slice(0,10);
+  document.getElementById('cekKesideTarihi').value = d.kesideTarihi || bugun;
+  document.getElementById('cekAlindigiTarih').value = d.alindigiTarih || bugun;
   document.getElementById('cekKesideci').value = d.kesideci || '';
   document.getElementById('cekKesideYeri').value = d.kesideYeri || '';
   document.getElementById('cekLehtar').value = d.lehtar || '';
