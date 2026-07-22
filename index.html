@@ -122,9 +122,10 @@
   #cariFilterFab .c2{left:16px;}
   #cariFilterFab.mode-tumu .c2{opacity:.35;}
   #cariFilterFab.mode-ba .c1{opacity:.35;}
-  .cari-card-balance{font-size:21px;font-weight:800;margin-top:10px;letter-spacing:.2px;color:var(--ink);}
+  .cari-card-balance{font-size:21px;font-weight:800;margin-top:10px;letter-spacing:.2px;color:var(--accent);}
   .cari-card-name{font-size:15px;font-weight:600;color:var(--muted);margin-top:3px;}
   .cari-card-bottom{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+  .cari-card-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 8px rgba(0,0,0,.15);}
   .cari-card-info{font-size:12pt;color:var(--ink);line-height:1.85;}
   .cari-card-info-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);}
   .cari-card-info-row:last-child{border-bottom:none;}
@@ -513,15 +514,15 @@
         <div class="cari-card-info" style="display:flex;flex-wrap:wrap;gap:8px 14px;">
           <div style="flex:1 1 26%;min-width:92px;">
             <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);">TOPLAM BORÇ</div>
-            <div id="cariToplamBorc" style="font-size:12pt;font-weight:800;color:var(--ink);margin-top:2px;">0,00₺</div>
+            <div id="cariToplamBorc" style="font-size:12pt;font-weight:800;color:var(--red);margin-top:2px;">0,00₺</div>
           </div>
           <div style="flex:1 1 26%;min-width:92px;">
             <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);">TOPLAM ALACAK</div>
-            <div id="cariToplamAlacak" style="font-size:12pt;font-weight:800;color:var(--ink);margin-top:2px;">0,00₺</div>
+            <div id="cariToplamAlacak" style="font-size:12pt;font-weight:800;color:var(--green);margin-top:2px;">0,00₺</div>
           </div>
           <div style="flex:1 1 26%;min-width:92px;">
             <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);">NAKİT (KASA)</div>
-            <div id="cashAmount" style="font-size:12pt;font-weight:800;color:var(--ink);margin-top:2px;">0,00₺</div>
+            <div id="cashAmount" style="font-size:12pt;font-weight:800;color:var(--accent);margin-top:2px;">0,00₺</div>
           </div>
         </div>
       </div>
@@ -1281,9 +1282,9 @@
     <div class="cari-card">
       <div class="cari-card-top">
         <span class="cari-card-label">TOPLAM GİDER</span>
-        <span class="cari-card-logo"><i class="c1"></i><i class="c2"></i></span>
+        <span class="cari-card-icon" style="background:linear-gradient(135deg,#f2795a,#c0392b);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M18 13l-6 6-6-6"/></svg></span>
       </div>
-      <div class="cari-card-balance" id="masrafToplamEl">0,00₺</div>
+      <div class="cari-card-balance" id="masrafToplamEl" style="color:var(--red);">0,00₺</div>
       <div class="cari-card-name">Tüm Masraf Kalemleri</div>
     </div>
   </div>
@@ -1374,17 +1375,20 @@
     <div class="cari-card">
       <div class="cari-card-top">
         <span class="cari-card-label">NAKİT (KASA)</span>
-        <span class="cari-card-logo"><i class="c1"></i><i class="c2"></i></span>
+        <span class="cari-card-icon" style="background:linear-gradient(135deg,#4ec98a,#1f8a54);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.5"/></svg></span>
       </div>
-      <div class="cari-card-balance" id="kasaToplam">0,00₺</div>
+      <div class="cari-card-balance" id="kasaToplam" style="color:var(--green);">0,00₺</div>
       <div class="cari-card-name">Güncel Nakit Durumu</div>
     </div>
     <div class="cari-card" id="gelenCeklerCard" style="margin-top:12px;cursor:pointer;">
       <div class="cari-card-top">
         <span class="cari-card-label">GELEN ÇEKLER</span>
-        <span style="color:var(--muted);font-size:20px;font-weight:700;">›</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="cari-card-icon" style="background:linear-gradient(135deg,#f5b94e,#d98c1f);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M6 15c1-2 3-2 4 0"/><path d="M15 9.5h4M15 13h4"/></svg></span>
+          <span style="color:var(--muted);font-size:18px;font-weight:700;">›</span>
+        </div>
       </div>
-      <div class="cari-card-balance" id="gelenCeklerToplam">0,00₺</div>
+      <div class="cari-card-balance" id="gelenCeklerToplam" style="color:#d98c1f;">0,00₺</div>
       <div class="cari-card-name" id="gelenCeklerAlt">Kasada bekleyen çek yok</div>
     </div>
   </div>
