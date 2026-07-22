@@ -1356,12 +1356,14 @@
       <div class="cari-card-name" id="gelenCeklerAlt">Kasada bekleyen çek yok</div>
     </div>
   </div>
-  <div style="padding:12px 16px 0 16px;">
-    <div style="background:#f4f7f8;border-radius:16px;padding:12px 10px 2px 10px;">
-      <div id="gelenCeklerList"></div>
-    </div>
+  <div style="display:flex;gap:8px;padding:14px 16px 0 16px;">
+    <button type="button" id="kasaTabHareketler" class="ci-tur-btn active">Hareketler</button>
+    <button type="button" id="kasaTabCekler" class="ci-tur-btn">Gelen Çekler</button>
   </div>
   <div class="d-list" id="kasaList" style="padding:16px 16px 100px 16px;"></div>
+  <div class="d-list hidden" id="gelenCeklerWrap" style="padding:16px 16px 100px 16px;">
+    <div id="gelenCeklerList"></div>
+  </div>
 </div>
 
 <div class="detail-screen" id="cekSenetScreen">
@@ -3656,6 +3658,18 @@ function openCekSenetScreen(){
   nudge();
 }
 document.getElementById('gelenCeklerCard').onclick = null;
+document.getElementById('kasaTabHareketler').onclick = () => {
+  document.getElementById('kasaTabHareketler').classList.add('active');
+  document.getElementById('kasaTabCekler').classList.remove('active');
+  document.getElementById('kasaList').classList.remove('hidden');
+  document.getElementById('gelenCeklerWrap').classList.add('hidden');
+};
+document.getElementById('kasaTabCekler').onclick = () => {
+  document.getElementById('kasaTabCekler').classList.add('active');
+  document.getElementById('kasaTabHareketler').classList.remove('active');
+  document.getElementById('gelenCeklerWrap').classList.remove('hidden');
+  document.getElementById('kasaList').classList.add('hidden');
+};
 
 let cekSenetListData = [];
 function cekRowHtml(r, i){
