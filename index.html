@@ -1663,12 +1663,23 @@ function enableSwipeRows(container){
     const wrap = el.closest('.swipe-wrap');
     const rightBar = wrap ? wrap.querySelector('.swipe-actions') : null;
     const leftBar = wrap ? wrap.querySelector('.swipe-actions-left') : null;
+    // Bazı listelerde (ör. çek listesi, iki butonlu 224px'lik bar) sağ buton alanı
+    // standart tek-buton genişliğinden (168) geniş olabiliyor. Sabit SWIPE_WIDTH
+    // kullanmak yerine, o satırın gerçek buton genişliğini ölçüp ona göre kaydırıyoruz
+    // ki satır TAM açılsın ve altındaki içerik görünmeye devam etmesin.
+    // Bazı listelerde (ör. çek listesi, iki butonlu 224px'lik bar) sağ buton alanı
+    // standart tek-buton genişliğinden (168) geniş olabiliyor. Genişliği setup anında
+    // DEĞİL, her sürükleme başladığında (pointerdown) ölçüyoruz — çünkü liste render
+    // edildiğinde ekran henüz 'show' olmayabiliyor (display:none), bu durumda
+    // offsetWidth 0 döner ve yanlışlıkla sabit SWIPE_WIDTH'e düşerdi.
+    let rightW = SWIPE_WIDTH;
     function updateBars(x){
       if(rightBar) rightBar.style.visibility = x < 0 ? 'visible' : 'hidden';
       if(leftBar) leftBar.style.visibility = x > 0 ? 'visible' : 'hidden';
     }
     updateBars(0);
     el.addEventListener('pointerdown', (e)=>{
+      rightW = (rightBar && rightBar.offsetWidth) || SWIPE_WIDTH;
       container.querySelectorAll('.swipe-content.swiped, .swipe-content.swiped-order').forEach(o=>{
         if(o!==el){
           o.style.transform=''; o.classList.remove('swiped'); o.classList.remove('swiped-order');
@@ -1682,7 +1693,7 @@ function enableSwipeRows(container){
       });
       dragging = true; moved = false;
       startX = e.clientX; lastX = e.clientX;
-      baseX = el.classList.contains('swiped') ? -SWIPE_WIDTH : (el.classList.contains('swiped-order') ? LEFT_SWIPE_WIDTH : 0);
+      baseX = el.classList.contains('swiped') ? -rightW : (el.classList.contains('swiped-order') ? LEFT_SWIPE_WIDTH : 0);
       el.style.transition = 'none';
     });
     el.addEventListener('pointermove', (e)=>{
@@ -1691,7 +1702,7 @@ function enableSwipeRows(container){
       const delta = lastX - startX;
       if(Math.abs(delta) > 6) moved = true;
       let x = baseX + delta;
-      x = Math.max(-SWIPE_WIDTH, Math.min(LEFT_SWIPE_WIDTH, x));
+      x = Math.max(-rightW, Math.min(LEFT_SWIPE_WIDTH, x));
       el.style.transform = `translateX(${x}px)`;
       updateBars(x);
     });
@@ -1700,9 +1711,9 @@ function enableSwipeRows(container){
       dragging = false;
       el.style.transition = '';
       const delta = lastX - startX;
-      const finalX = Math.max(-SWIPE_WIDTH, Math.min(LEFT_SWIPE_WIDTH, baseX + delta));
-      if(finalX < -SWIPE_WIDTH/2){
-        el.style.transform = `translateX(-${SWIPE_WIDTH}px)`;
+      const finalX = Math.max(-rightW, Math.min(LEFT_SWIPE_WIDTH, baseX + delta));
+      if(finalX < -rightW/2){
+        el.style.transform = `translateX(-${rightW}px)`;
         el.classList.add('swiped'); el.classList.remove('swiped-order');
         updateBars(-1);
       } else if(finalX > LEFT_SWIPE_WIDTH/2){
