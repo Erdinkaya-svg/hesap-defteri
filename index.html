@@ -4135,6 +4135,7 @@ let cariSecTerm = '';
 
 function openCariSec(ledgerKey, targetInputId){
   cariSecMode = 'fill';
+  document.getElementById('cariSecBack').classList.remove('hidden');
   cariSecLedger = ledgerKey;
   cariSecTargetId = targetInputId;
   cariSecTerm = '';
@@ -4153,6 +4154,7 @@ function openCekYeniCariSec(){
   cariSecTerm = '';
   document.getElementById('cariSecSearch').value = '';
   document.getElementById('cariSecSearch').placeholder = 'müşteri ara';
+  document.getElementById('cariSecBack').classList.add('hidden');
   renderCariSecList();
   document.getElementById('cariSecScreen').classList.add('show');
   nudge();
