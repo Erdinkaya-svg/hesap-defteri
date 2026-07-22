@@ -3484,8 +3484,7 @@ document.getElementById('confirmDeleteYes').onclick = () => {
   document.getElementById('confirmDeleteOverlay').classList.remove('show');
 };
 
-document.getElementById('rcEdit').onclick = () => {
-  const t = currentReceiptTx;
+function openTxEditForm(t){
   if(!t) return;
   if(t.type === 'ALIŞ' || t.type === 'SATIŞ'){
     const item = currentDetailTx.find(x => x.t === t) || { t };
@@ -3510,7 +3509,8 @@ document.getElementById('rcEdit').onclick = () => {
     tahYontemSec('cek');
     cekFormuDoldur({ cekDetay: editCekDetay });
   }
-};
+}
+document.getElementById('rcEdit').onclick = () => openTxEditForm(currentReceiptTx);
 
 document.getElementById('rcClose').onclick = () => receiptOverlay.classList.remove('show');
 receiptOverlay.onclick = (e) => { if(e.target === receiptOverlay) receiptOverlay.classList.remove('show'); };
@@ -3840,17 +3840,17 @@ function renderCekSenet(){
   renderCekListInto('gelenCeklerList');
 }
 
-// Çek Senet listesindeki "Değiştir": ilgili carinin ekstresini arka planda
-// hesaplayıp (doğru bakiye için), aynı fiş düzenleme akışını (openTxDetay/openReceipt)
-// açar — cari hesap ekstresindeki "Değiştir" ile birebir aynı, kanıtlanmış akış.
+// Çek Senet listesindeki satıra dokununca artık ara "fiş" özeti değil,
+// doğrudan büyük/tam düzenleme formu (openTxEditForm — rcEdit ile aynı akış)
+// açılıyor; kullanıcı önce küçük özet ekranını görüp sonra "Düzenle"ye
+// basmak zorunda kalmıyor.
 function openCekDegistir(idx){
   const r = cekSenetListData[idx];
   if(!r) return;
   activeLedger = 'cari';
   activeCariId = r.cari.id;
   renderDetail();
-  const item = currentDetailTx.find(x => x.t === r.tx);
-  if(item) openTxDetay(item);
+  openTxEditForm(r.tx);
 }
 
 // Ciro edilmiş bir çeki listeden doğrudan "iade al": ilgili tedarikçideki
