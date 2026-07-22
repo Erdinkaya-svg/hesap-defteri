@@ -2701,9 +2701,9 @@ document.getElementById('quickTxCekToggle').onclick = function(){
 document.getElementById('quickTxCiroToggle').onclick = function(){
   quickTxCiroOn = skToggleSwitch(this);
 };
-document.getElementById('quickTxCancel').onclick = () => { document.getElementById('quickTxOverlay').classList.remove('show'); };
+document.getElementById('quickTxCancel').onclick = () => { editingTx = null; document.getElementById('quickTxOverlay').classList.remove('show'); };
 document.getElementById('quickTxOverlay').onclick = (e) => {
-  if(e.target === document.getElementById('quickTxOverlay')) document.getElementById('quickTxOverlay').classList.remove('show');
+  if(e.target === document.getElementById('quickTxOverlay')){ editingTx = null; document.getElementById('quickTxOverlay').classList.remove('show'); }
 };
 document.getElementById('quickTxSave').onclick = () => {
   const c = state[quickTxLedger].find(x=>x.id===quickTxId);
@@ -2753,6 +2753,21 @@ document.getElementById('quickTxSave').onclick = () => {
 
   if(quickTxType === 'ÖDEME') state.cash -= amount;
   if(quickTxType === 'TAHSİLAT') state.cash += amount;
+
+  // "Değiştir" akışıysa: orijinal hareket ŞİMDİ, yeni hareketle birlikte kaldırılır.
+  // Böylece kullanıcı Kaydet'e basmadan vazgeçtiğinde orijinal hareket asla silinmemiş olur.
+  if(editingTx && editingTx.ledgerKey === quickTxLedger && editingTx.cariId === quickTxId){
+    const origC = state[editingTx.ledgerKey].find(x=>x.id===editingTx.cariId);
+    if(origC){
+      const origIdx = origC.transactions.indexOf(editingTx.tx);
+      if(origIdx !== -1){
+        origC.transactions.splice(origIdx, 1);
+        if(editingTx.tx.type === 'TAHSİLAT') state.cash -= editingTx.tx.amount;
+        if(editingTx.tx.type === 'ÖDEME') state.cash += editingTx.tx.amount;
+      }
+    }
+  }
+  editingTx = null;
 
   save();
   document.getElementById('quickTxOverlay').classList.remove('show');
@@ -3343,12 +3358,13 @@ document.getElementById('rcEdit').onclick = () => {
   }
   const editLedger = activeLedger, editId = activeCariId, editType = t.type, editAmount = Math.abs(t.amount), editDate = t.date;
   const editWasCek = !!t.cek, editWasCiro = !!t.ciro, editCekDetay = t.cekDetay;
-  if(removeCurrentReceiptTx()){
-    save();
-    renderDetail();
-  }
+  // ÖNEMLİ: orijinal hareket burada SİLİNMİYOR ve save() ÇAĞRILMIYOR.
+  // Kullanıcı Kaydet'e basmadan (overlay'i kapatıp) vazgeçerse orijinal hareket
+  // olduğu gibi kalmalı. Silme işlemi, quickTxSave içinde yeni hareketle birlikte,
+  // tek save() çağrısında yapılıyor (bkz. editingTx).
   receiptOverlay.classList.remove('show');
   openQuickTx(editId, editLedger, editType);
+  editingTx = { ledgerKey: editLedger, cariId: editId, tx: t };
   quickTxEditDate = editDate;
   quickTxPrevCiro = editWasCiro;
   document.getElementById('quickTxAmount').value = fmtPlain(editAmount);
