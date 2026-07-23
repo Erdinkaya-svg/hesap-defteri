@@ -3843,7 +3843,8 @@ function cekRowHtml(r, i){
     ? `<button type="button" class="cek-ciro-swipe-btn" data-idx="${i}" style="flex:1;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;">Ciro Et</button>`
     : `<button type="button" class="cek-iade-swipe-btn" data-idx="${i}" style="flex:1;border:none;background:#d9534f;color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;">İade Al</button>`;
   const degistirBtn = `<button type="button" class="cek-degistir-swipe-btn" data-idx="${i}" style="flex:1;border:none;background:#5b6b73;color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;">Değiştir</button>`;
-  const swipeActions = `<div class="swipe-actions" style="width:224px;">${stateBtn}${degistirBtn}</div>`;
+  const silBtn = `<button type="button" class="cek-sil-swipe-btn" data-idx="${i}" style="flex:1;border:none;background:var(--red);color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;">Sil</button>`;
+  const swipeActions = `<div class="swipe-actions" style="width:336px;">${stateBtn}${degistirBtn}${silBtn}</div>`;
   return `
     <div class="swipe-wrap" style="border-radius:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(20,30,40,.06);">
       ${swipeActions}
@@ -3891,6 +3892,9 @@ function renderCekListInto(containerId){
   });
   list.querySelectorAll('.cek-degistir-swipe-btn').forEach(btn=>{
     btn.onclick = (e) => { e.stopPropagation(); openCekDegistir(parseInt(btn.dataset.idx, 10)); };
+  });
+  list.querySelectorAll('.cek-sil-swipe-btn').forEach(btn=>{
+    btn.onclick = (e) => { e.stopPropagation(); silCek(parseInt(btn.dataset.idx, 10)); };
   });
   list.querySelectorAll('.swipe-content[data-idx]').forEach(el=>{
     el.onclick = () => {
@@ -3985,6 +3989,41 @@ function iadeAlCek(idx){
     renderCariHesaplar();
     if(kasaScreen.classList.contains('show')) renderKasa();
   }, 'Evet, İade Al');
+}
+
+// Gelen Çekler listesinden bir çeki tamamen sil. Ciro edilmişse önce ilgili
+// tedarikçideki "Çek Çıkış" ödemesi de silinir ve kasa buna göre düzeltilir,
+// ardından çekin kendisi (asıl TAHSİLAT hareketi) carinin hareketlerinden silinir.
+function silCek(idx){
+  const r = cekSenetListData[idx];
+  if(!r) return;
+  const t = r.tx;
+  const uyariMetni = t.ciro
+    ? 'Bu çek silinecek. Ciro edilmiş olduğu için ilgili tedarikçi ödemesi de silinip kasa buna göre düzeltilecektir. Bu işlem geri alınamaz. Emin misiniz?'
+    : 'Bu çek silinecek. Bu işlem geri alınamaz. Emin misiniz?';
+  openConfirm('Çeki Sil', uyariMetni, () => {
+    if(t.ciro){
+      for(const td of state.tedarikci){
+        const list2 = td.transactions || [];
+        const i2 = list2.findIndex(x => x.cekKaynakId === t.cekId);
+        if(i2 > -1){
+          const odemeTx = list2[i2];
+          list2.splice(i2, 1);
+          state.cash += Math.abs(odemeTx.amount);
+          break;
+        }
+      }
+    }
+    const idx2 = (r.cari.transactions || []).indexOf(t);
+    if(idx2 > -1) r.cari.transactions.splice(idx2, 1);
+    if(t.type === 'TAHSİLAT') state.cash -= t.amount;
+    if(t.type === 'ÖDEME') state.cash += t.amount;
+    save();
+    renderCekSenet();
+    render();
+    renderCariHesaplar();
+    if(kasaScreen.classList.contains('show')) renderKasa();
+  }, 'Evet, Sil');
 }
 
 let cekCikisIdx = null;
