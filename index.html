@@ -959,6 +959,37 @@
   </div>
 </div>
 
+<div class="overlay" id="cekOnizlemeOverlay" style="z-index:96;">
+  <div class="modal" style="max-height:88vh;overflow-y:auto;padding-bottom:14px;background:#f2f2f7;">
+    <h3 id="cekOnBaslik" style="margin-bottom:12px;">Çek Detayı</h3>
+    <div class="ios-card">
+      <div class="field-ios"><label>Cari Hesap</label><span id="cekOnCari" style="font-weight:600;"></span></div>
+      <div class="field-ios"><label>Tutar</label><span id="cekOnTutar" style="font-weight:700;"></span></div>
+      <div class="field-ios"><label>Durum</label><span id="cekOnDurum"></span></div>
+      <div id="cekOnCiroRow" class="field-ios hidden"><label>Kime Ciro Edildi</label><span id="cekOnCiroKime"></span></div>
+    </div>
+    <div class="ios-card">
+      <div class="field-ios"><label>Çek Numarası</label><span id="cekOnNo"></span></div>
+      <div class="field-ios"><label>Banka</label><span id="cekOnBanka"></span></div>
+      <div class="field-ios"><label>Şube</label><span id="cekOnSube"></span></div>
+      <div class="field-ios"><label>IBAN</label><span id="cekOnIban" style="text-align:right;word-break:break-all;"></span></div>
+    </div>
+    <div class="ios-card">
+      <div class="field-ios"><label>Düzenleme Tarihi</label><span id="cekOnDuzenleme"></span></div>
+      <div class="field-ios"><label>Vade Tarihi</label><span id="cekOnVade"></span></div>
+      <div class="field-ios"><label>Keşide Tarihi</label><span id="cekOnKeside"></span></div>
+      <div class="field-ios"><label>Ne Zaman Alındı</label><span id="cekOnAlindigi"></span></div>
+    </div>
+    <div class="ios-card">
+      <div class="field-ios"><label>Keşideci</label><span id="cekOnKesideci"></span></div>
+      <div class="field-ios"><label>Keşide Yeri</label><span id="cekOnKesideYeri"></span></div>
+      <div class="field-ios"><label>Lehtar</label><span id="cekOnLehtar"></span></div>
+    </div>
+    <button type="button" id="cekOnizlemeDuzenleBtn" style="width:100%;padding:14px 0;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;">Düzenle</button>
+    <button type="button" id="cekOnizlemeKapatBtn" style="margin-top:8px;width:100%;padding:14px 0;border:none;border-radius:12px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">Kapat</button>
+  </div>
+</div>
+
 <div class="overlay" id="tahYontemOverlay" style="z-index:95;">
   <div class="modal" style="padding-bottom:14px;text-align:center;">
     <h3 style="margin-bottom:14px;">Ödeme Yöntemi</h3>
@@ -3865,7 +3896,7 @@ function renderCekListInto(containerId){
     el.onclick = () => {
       if(el.__isSwipeMoved && el.__isSwipeMoved()) return;
       if(el.classList.contains('swiped')){ el.style.transform=''; el.classList.remove('swiped'); return; }
-      openCekDegistir(parseInt(el.dataset.idx, 10));
+      openCekOnizleme(parseInt(el.dataset.idx, 10));
     };
   });
 }
@@ -3873,6 +3904,44 @@ function renderCekSenet(){
   buildCekSenetListData();
   renderCekListInto('gelenCeklerList');
 }
+
+// Çek Senet listesindeki satıra dokununca artık düzenleme formu değil,
+// salt-okunur bir önizleme açılıyor; düzenlemek için "Düzenle" butonuna
+// (ya da satırı sola kaydırıp "Değiştir"e) basmak gerekiyor.
+let cekOnizlemeIdx = null;
+function openCekOnizleme(idx){
+  const r = cekSenetListData[idx];
+  if(!r) return;
+  cekOnizlemeIdx = idx;
+  const t = r.tx, d = t.cekDetay || {};
+  const tarihStr = v => v ? new Date(v).toLocaleDateString('tr-TR') : '—';
+  document.getElementById('cekOnBaslik').textContent = r.cari.name;
+  document.getElementById('cekOnCari').textContent = r.cari.name;
+  document.getElementById('cekOnTutar').textContent = fmtPlain(Math.abs(t.amount)) + '₺';
+  document.getElementById('cekOnDurum').textContent = t.ciro ? 'Ciro Edildi' : 'Kasada';
+  document.getElementById('cekOnCiroRow').classList.toggle('hidden', !(t.ciro && d.kimeCiroEdildi));
+  document.getElementById('cekOnCiroKime').textContent = d.kimeCiroEdildi || '';
+  document.getElementById('cekOnNo').textContent = d.no || '—';
+  document.getElementById('cekOnBanka').textContent = d.banka || '—';
+  document.getElementById('cekOnSube').textContent = d.sube || '—';
+  document.getElementById('cekOnIban').textContent = d.iban || '—';
+  document.getElementById('cekOnDuzenleme').textContent = tarihStr(d.duzenlemeTarihi);
+  document.getElementById('cekOnVade').textContent = tarihStr(d.vadeTarihi);
+  document.getElementById('cekOnKeside').textContent = tarihStr(d.kesideTarihi);
+  document.getElementById('cekOnAlindigi').textContent = tarihStr(d.alindigiTarih);
+  document.getElementById('cekOnKesideci').textContent = d.kesideci || '—';
+  document.getElementById('cekOnKesideYeri').textContent = d.kesideYeri || '—';
+  document.getElementById('cekOnLehtar').textContent = d.lehtar || '—';
+  document.getElementById('cekOnizlemeOverlay').classList.add('show');
+}
+document.getElementById('cekOnizlemeKapatBtn').onclick = () => { document.getElementById('cekOnizlemeOverlay').classList.remove('show'); };
+document.getElementById('cekOnizlemeOverlay').onclick = (e) => {
+  if(e.target.id === 'cekOnizlemeOverlay') document.getElementById('cekOnizlemeOverlay').classList.remove('show');
+};
+document.getElementById('cekOnizlemeDuzenleBtn').onclick = () => {
+  document.getElementById('cekOnizlemeOverlay').classList.remove('show');
+  if(cekOnizlemeIdx !== null) openCekDegistir(cekOnizlemeIdx);
+};
 
 // Çek Senet listesindeki satıra dokununca artık ara "fiş" özeti değil,
 // doğrudan büyük/tam düzenleme formu (openTxEditForm — rcEdit ile aynı akış)
