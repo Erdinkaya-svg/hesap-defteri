@@ -6485,30 +6485,50 @@ function ensureBestKuruTemizleme(){
 }
 if(ensureBestKuruTemizleme()) save();
 
-// Temmuz 2026: Garanti BBVA "Gelen Para Transferi" maili — Murat Şanal (gönderen adı
-// bankada "Şanal Kuru Temizleme" olarak geçiyor) hesaba 2.000₺ havale gönderdi
-// (Açıklama: Xym, 23.07.2026 06:45). Kullanıcı onayıyla yeni müşteri cari hesabı
-// açılıp TAHSİLAT olarak işlendi. Para banka hesabına geldiği için (nakit değil)
-// kasaya (state.cash) DOKUNULMADI — bunun yerine aynı tutar Banka modülüne
-// "Para Yatır" olarak işlendi (kullanıcı: "ayrı modül olsun, kasaya bağlantı yaparız" —
-// yani Kasa/Banka arasında bir bağlantı/senkron ileride ayrıca kurulacak, şimdilik yok).
-function ensureMuratSanalTahsilat(){
-  const existing = state.cari.find(c => normAd(c.name) === normAd('Murat Şanal'));
+// Temmuz 2026: Garanti BBVA "Gelen Para Transferi" maili — Murat Şanal (Şanal Kuru
+// Temizleme'nin sahibi) hesaba 2.000₺ havale gönderdi (Açıklama: Xym, 23.07.2026 06:45).
+// İLK SEFERİNDE YANLIŞLIKLA "Murat Şanal" adıyla YENİ bir cari açılmıştı — kullanıcı
+// düzeltti: bu kişi zaten mevcut/bilinen "Şanal Kuru Temizleme" cari hesabının sahibi,
+// ayrı bir müşteri değil. Bu fonksiyon hem düzeltmeyi (yanlış "Murat Şanal" hesabı
+// varsa doğru hesaba taşı/yeniden adlandır) hem de asıl tahsilat kaydını tek seferde yapar.
+// Para banka hesabına geldiği için (nakit değil) kasaya (state.cash) DOKUNULMADI —
+// bunun yerine aynı tutar Banka modülüne "Para Yatır" olarak işlendi (kullanıcı: "ayrı
+// modül olsun, kasaya bağlantı yaparız" — Kasa/Banka arası bağlantı ileride ayrıca kurulacak).
+function ensureSanalKuruTemizlemeTahsilati(){
   let changed = false;
-  if(!existing){
-    state.cari.push({ id:'muratsanal', name:'Murat Şanal', transactions: [
-      {type:'TAHSİLAT', desc:'Garanti BBVA havale (Şanal Kuru Temizleme)', amount:2000.00, date:'2026-07-23T06:45:20.000Z'}
-    ]});
+  const yanlisHesap = state.cari.find(c => normAd(c.name) === normAd('Murat Şanal'));
+  let dogruHesap = state.cari.find(c => normAd(c.name) === normAd('Şanal Kuru Temizleme'));
+  if(yanlisHesap){
+    if(dogruHesap){
+      yanlisHesap.transactions.forEach(t=>{
+        const varMi = dogruHesap.transactions.some(x => x.date === t.date && x.amount === t.amount && x.type === t.type);
+        if(!varMi) dogruHesap.transactions.push(t);
+      });
+      state.cari = state.cari.filter(c => c !== yanlisHesap);
+    } else {
+      yanlisHesap.name = 'Şanal Kuru Temizleme';
+      yanlisHesap.id = 'sanalkuru';
+      dogruHesap = yanlisHesap;
+    }
     changed = true;
   }
-  const already = state.banka.transactions.some(t => t.desc === 'Murat Şanal — Garanti BBVA havale' && t.date === '2026-07-23T06:45:20.000Z');
-  if(!already){
-    state.banka.transactions.push({ type:'YATIR', desc:'Murat Şanal — Garanti BBVA havale', amount:2000.00, date:'2026-07-23T06:45:20.000Z' });
+  if(!dogruHesap){
+    state.cari.push({ id:'sanalkuru', name:'Şanal Kuru Temizleme', transactions: [
+      {type:'TAHSİLAT', desc:'Garanti BBVA havale (Murat Şanal)', amount:2000.00, date:'2026-07-23T06:45:20.000Z'}
+    ]});
+    changed = true;
+  } else if(!dogruHesap.transactions.some(t => t.date === '2026-07-23T06:45:20.000Z' && t.amount === 2000 && t.type === 'TAHSİLAT')){
+    dogruHesap.transactions.push({type:'TAHSİLAT', desc:'Garanti BBVA havale (Murat Şanal)', amount:2000.00, date:'2026-07-23T06:45:20.000Z'});
+    changed = true;
+  }
+  const bankaVarMi = state.banka.transactions.some(t => t.date === '2026-07-23T06:45:20.000Z' && t.amount === 2000 && t.type === 'YATIR');
+  if(!bankaVarMi){
+    state.banka.transactions.push({ type:'YATIR', desc:'Şanal Kuru Temizleme (Murat Şanal) — Garanti BBVA havale', amount:2000.00, date:'2026-07-23T06:45:20.000Z' });
     changed = true;
   }
   return changed;
 }
-if(ensureMuratSanalTahsilat()) save();
+if(ensureSanalKuruTemizlemeTahsilati()) save();
 
 // Temmuz 2026: Garanti BBVA günlük hesap hareketleri maili — MAVI MARKET / YASEMIN AC
 // kart harcamaları (2 adet, 22.07.2026). Kullanıcı onayıyla masraf olarak, banka
