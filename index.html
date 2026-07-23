@@ -190,7 +190,7 @@
   .dcek-dot{width:6px;height:6px;border-radius:50%;background:#d5dade;transition:background .2s,width .2s;}
   .dcard-pager{overflow:hidden;position:relative;}
   .dcard-track{display:flex;width:600%;}
-  .dcard-page{flex:0 0 16.6667%;min-width:16.6667%;box-sizing:border-box;}
+  .dcard-page{flex:0 0 50%;min-width:50%;box-sizing:border-box;}
   .dcek-dot.active{background:var(--accent);width:16px;border-radius:3px;}
   .overlay.show{display:flex;}
   .modal{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:20px 20px 26px 20px;}
@@ -646,24 +646,28 @@
               <div class="cari-card-balance" id="dEkstreCardBalance" style="margin-top:0;text-align:right;white-space:nowrap;flex-shrink:0;">0,00₺</div>
             </div>
             <div class="cari-card-name" style="font-size:11px;opacity:.65;margin-top:2px;">Net Bakiye</div>
+            <div class="cari-card-bottom" style="align-items:flex-start;">
+              <div class="cari-card-info" style="display:flex;flex-wrap:wrap;gap:8px 14px;">
+                <div style="flex:1 1 40%;min-width:110px;">
+                  <div style="font-size:11px;letter-spacing:.3px;color:var(--muted);">ALINAN ÇEKLER</div>
+                  <div id="dCardCekAlinan" style="font-size:14px;font-weight:800;color:var(--ink);margin-top:2px;">0,00₺</div>
+                </div>
+                <div style="flex:1 1 40%;min-width:110px;">
+                  <div style="font-size:11px;letter-spacing:.3px;color:var(--muted);">TAHSİLATLAR</div>
+                  <div id="dCardTahsilat" style="font-size:14px;font-weight:800;color:var(--green);margin-top:2px;">0,00₺</div>
+                </div>
+                <div style="flex:1 1 40%;min-width:110px;">
+                  <div style="font-size:11px;letter-spacing:.3px;color:var(--muted);">ÖDEMELER</div>
+                  <div id="dCardOdeme" style="font-size:14px;font-weight:800;color:var(--red);margin-top:2px;">0,00₺</div>
+                </div>
+                <div style="flex:1 1 40%;min-width:110px;">
+                  <div style="font-size:11px;letter-spacing:.3px;color:var(--muted);">CİRO EDİLEN ÇEKLER</div>
+                  <div id="dCardCekCiro" style="font-size:14px;font-weight:800;color:var(--accent);margin-top:2px;">0,00₺</div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="dcard-page" data-page="1">
-            <div class="cari-card-name" style="font-size:11px;letter-spacing:.4px;opacity:.7;margin-top:10px;">ALINAN ÇEKLER</div>
-            <div class="cari-card-balance" id="dCardCekAlinan" style="margin-top:4px;">0,00₺</div>
-          </div>
-          <div class="dcard-page" data-page="2">
-            <div class="cari-card-name" style="font-size:11px;letter-spacing:.4px;opacity:.7;margin-top:10px;">TAHSİLATLAR</div>
-            <div class="cari-card-balance" id="dCardTahsilat" style="margin-top:4px;">0,00₺</div>
-          </div>
-          <div class="dcard-page" data-page="3">
-            <div class="cari-card-name" style="font-size:11px;letter-spacing:.4px;opacity:.7;margin-top:10px;">ÖDEMELER</div>
-            <div class="cari-card-balance" id="dCardOdeme" style="margin-top:4px;">0,00₺</div>
-          </div>
-          <div class="dcard-page" data-page="4">
-            <div class="cari-card-name" style="font-size:11px;letter-spacing:.4px;opacity:.7;margin-top:10px;">CİRO EDİLEN ÇEKLER</div>
-            <div class="cari-card-balance" id="dCardCekCiro" style="margin-top:4px;">0,00₺</div>
-          </div>
-          <div class="dcard-page" data-page="5">
             <div id="dEkstreInfoBody" class="cari-card-info" style="margin-top:10px;"></div>
           </div>
           </div>
@@ -681,10 +685,6 @@
     <div class="dcek-dots" id="dDots">
       <span class="dcek-dot active" data-i="0"></span>
       <span class="dcek-dot" data-i="1"></span>
-      <span class="dcek-dot" data-i="2"></span>
-      <span class="dcek-dot" data-i="3"></span>
-      <span class="dcek-dot" data-i="4"></span>
-      <span class="dcek-dot" data-i="5"></span>
     </div>
     <div class="dcek-page-head" style="margin-top:6px;"><span class="dcek-page-title" id="dListBaslik">TÜM HAREKETLER</span></div>
     <div class="d-list" id="dList" style="flex:1;overflow-y:auto;min-height:0;"></div>
@@ -3270,13 +3270,9 @@ function applyEkstreListFilter(pageIdx){
 function goToCardPage(idx, animate){
   const track = document.getElementById('dCardTrack');
   track.style.transition = animate === false ? 'none' : 'transform .25s ease';
-  track.style.transform = `translateX(-${idx * (100/6)}%)`;
+  track.style.transform = `translateX(-${idx * 50}%)`;
   document.querySelectorAll('#dDots .dcek-dot').forEach((d,i)=> d.classList.toggle('active', i===idx));
-  if(idx <= 4){
-    applyEkstreListFilter(idx);
-  } else {
-    dActivePage = idx;
-  }
+  dActivePage = idx;
 }
 
 (function(){
@@ -3296,9 +3292,9 @@ function goToCardPage(idx, animate){
     lastX = e.clientX;
     const delta = lastX - startX;
     if(Math.abs(delta) > 6) moved = true;
-    const pct = (delta / pager.clientWidth) * (100/6);
-    let x = -(baseIdx * (100/6)) + pct;
-    x = Math.max(-(5 * (100/6)), Math.min(0, x));
+    const pct = (delta / pager.clientWidth) * 50;
+    let x = -(baseIdx * 50) + pct;
+    x = Math.max(-50, Math.min(0, x));
     track.style.transform = `translateX(${x}%)`;
   });
   function finish(){
@@ -3309,7 +3305,7 @@ function goToCardPage(idx, animate){
     if(Math.abs(delta) > pager.clientWidth * 0.18){
       newIdx = delta < 0 ? baseIdx + 1 : baseIdx - 1;
     }
-    newIdx = Math.max(0, Math.min(5, newIdx));
+    newIdx = Math.max(0, Math.min(1, newIdx));
     goToCardPage(newIdx, true);
   }
   pager.addEventListener('pointerup', finish);
