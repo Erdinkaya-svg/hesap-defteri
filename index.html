@@ -3956,7 +3956,7 @@ function renderBanka(){
           </div>
           <div class="tx-row swipe-content" data-idx="${idx}">
             <div class="tx-left">
-              <div class="tx-type ${neg ? 'neg' : 'pos'}">${neg ? 'PARA ÇEK' : 'PARA YATIR'} <span class="tx-date">${dateStr}</span></div>
+              <div class="tx-type ${neg ? 'neg' : 'pos'}"><span class="tx-date">${dateStr}</span></div>
               ${t.desc ? `<div class="tx-desc">${t.desc}</div>` : ''}
             </div>
             <div class="tx-amount ${neg ? 'neg' : ''}">${neg ? '-' : ''}${main}<span class="cents">,${cents}</span></div>
