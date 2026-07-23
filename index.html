@@ -58,6 +58,8 @@
   .am-badge.b-siparis{background:linear-gradient(135deg,#63e070,#1fac47);}
   .am-badge.b-ayarlar{background:linear-gradient(135deg,#9aa8b8,#6d7c8d);}
   .am-badge.b-iletisim{background:linear-gradient(135deg,#6dd0c8,#2f9c8f);}
+  .am-badge.b-banka{background:linear-gradient(135deg,#5ec8e8,#1f7fae);}
+  .am-badge-balance{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);background:#1c2b30;color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25);border:2px solid #fff;}
 
   .urun-search-bar{display:flex;align-items:center;gap:10px;background:#fff;padding:22px 16px 14px 16px;flex-shrink:0;border-bottom:1px solid var(--line);}
   .urun-back{background:none;border:none;color:var(--accent);font-size:22px;cursor:pointer;padding:0 2px;}
@@ -498,6 +500,7 @@
     <div class="am-tile" data-mod="alislar"><div class="am-badge b-alis"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17"/><path d="M7.5 20h9"/><path d="M4 7h5.5M14.5 7H20"/><path d="M2 7l2.6 5.2a2.5 2.5 0 0 0 4.8 0L7 7"/><path d="M16.6 7l2.6 5.2a2.5 2.5 0 0 0 4.8 0L21.4 7"/></svg></div><div class="am-label">ALIŞLAR</div></div>
     <div class="am-tile" data-mod="masraflar"><div class="am-badge b-masraf"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2.2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="am-label">MASRAFLAR</div></div>
     <div class="am-tile" data-mod="kasa"><div class="am-badge b-masraf"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19"/><circle cx="12" cy="14.2" r="2.3"/></svg></div><div class="am-label">KASA &amp; ÇEK</div></div>
+    <div class="am-tile" data-mod="banka"><div class="am-badge b-banka"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 21 8 3 8"/></svg><div class="am-badge-balance" id="amBankaBadge" style="display:none;"></div></div><div class="am-label">BANKA</div></div>
     <div class="am-tile" data-mod="raporlar"><div class="am-badge b-rapor"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" fill="#fff" stroke="none"/><rect x="12" y="8" width="3" height="10" fill="#fff" stroke="none"/><rect x="17" y="5" width="3" height="13" fill="#fff" stroke="none"/></svg></div><div class="am-label">FİNANSAL RAPOR</div></div>
     <div class="am-tile" data-mod="ayarlar"><div class="am-badge b-ayarlar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13a7.9 7.9 0 0 0 0-2l1.9-1.5-2-3.4-2.3.8a8 8 0 0 0-1.7-1L15 3.5h-6l-.3 2.4a8 8 0 0 0-1.7 1l-2.3-.8-2 3.4L4.6 11a7.9 7.9 0 0 0 0 2l-1.9 1.5 2 3.4 2.3-.8a8 8 0 0 0 1.7 1L9 20.5h6l.3-2.4a8 8 0 0 0 1.7-1l2.3.8 2-3.4z"/></svg></div><div class="am-label">AYARLAR</div></div>
     <div class="am-tile" data-mod="iletisim"><div class="am-badge b-iletisim"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13a2 2 0 0 1 2-2h1v5H6a2 2 0 0 1-2-2z"/><path d="M20 13a2 2 0 0 0-2-2h-1v5h1a2 2 0 0 0 2-2z"/><path d="M16 17.5v.5a2 2 0 0 1-2 2h-1.5"/></svg></div><div class="am-label">İLETİŞİM</div></div>
@@ -1443,6 +1446,52 @@
   <div class="d-list" id="kasaList" style="padding:16px 16px 100px 16px;"></div>
 </div>
 
+<div class="detail-screen" id="bankaScreen">
+  <div class="d-header">
+    <div class="d-title">Banka</div>
+    <button class="d-share" id="bankaAddBtn" title="Ekle" style="visibility:visible;">＋</button>
+  </div>
+  <div style="padding:16px 16px 0 16px;">
+    <div class="cari-card">
+      <div class="cari-card-top">
+        <span class="cari-card-label">BANKA</span>
+        <span class="cari-card-icon" style="background:linear-gradient(135deg,#5ec8e8,#1f7fae);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="6" y1="18" x2="6" y2="12"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="18" y1="18" x2="18" y2="12"/><polygon points="12 3 20 8 4 8"/></svg></span>
+      </div>
+      <div class="cari-card-balance" id="bankaToplam" style="color:#1f7fae;">0,00₺</div>
+      <div class="cari-card-name">Güncel Banka Bakiyesi</div>
+    </div>
+  </div>
+  <div class="d-list" id="bankaList" style="padding:16px 16px 100px 16px;"></div>
+</div>
+
+<div class="overlay" id="bankaOverlay">
+  <div class="modal">
+    <h3>Banka Hareketi</h3>
+    <div class="seg">
+      <button class="active income" id="bankaSegYatir" type="button">Para Yatır</button>
+      <button id="bankaSegCek" type="button">Para Çek</button>
+    </div>
+    <div class="ios-card">
+      <div class="field-ios">
+        <label>Açıklama</label>
+        <input type="text" id="bankaDesc" placeholder="Örn: Havale, EFT, kredi ödemesi">
+      </div>
+      <div class="field-ios">
+        <label>Tutar (₺)</label>
+        <input type="number" id="bankaAmount" placeholder="0,00" inputmode="decimal">
+      </div>
+      <div class="field-ios">
+        <label>Tarih</label>
+        <input type="date" id="bankaTarih">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="bankaCancelBtn">Vazgeç</button>
+      <button class="btn-save" id="bankaSaveBtn">Kaydet</button>
+    </div>
+  </div>
+</div>
+
 <div class="detail-screen" id="kasaCekScreen">
   <div class="d-header">
     <div class="d-title">Gelen Çekler</div>
@@ -1644,6 +1693,8 @@ if(!state.siparisFisleri) state.siparisFisleri = [];
 if(!state.cariFilter) state.cariFilter = 'tumu';
 if(!state.masrafKategorileri) state.masrafKategorileri = [];
 if(!state.masrafHesaplari) state.masrafHesaplari = [];
+if(!state.banka) state.banka = { transactions: [] };
+if(!state.banka.transactions) state.banka.transactions = [];
 
 let activeLedger = 'cari';
 function getLedger(){ return state[activeLedger]; }
@@ -3649,6 +3700,7 @@ function hideAllScreens(){
   document.getElementById('ayarlarScreen').classList.remove('show');
   kasaScreen.classList.remove('show');
   document.getElementById('kasaCekScreen').classList.remove('show');
+  document.getElementById('bankaScreen').classList.remove('show');
   document.getElementById('masrafScreen').classList.remove('show');
   document.getElementById('masrafDetayScreen').classList.remove('show');
   document.getElementById('anaMenuFloatBtn').style.display = 'flex';
@@ -3667,12 +3719,24 @@ function updateSiparisBadge(){
   }
 }
 
+function bankaBakiye(){
+  return (state.banka.transactions||[]).reduce((s,t)=> s + (t.type === 'YATIR' ? t.amount : -t.amount), 0);
+}
+
+function updateBankaBadge(){
+  const badge = document.getElementById('amBankaBadge');
+  if(!badge) return;
+  badge.textContent = fmtWhole(bankaBakiye());
+  badge.style.display = 'flex';
+}
+
 function showAnaMenu(){
   hideAllScreens();
   anaMenu.style.display = 'flex';
   anaMenu.style.visibility = 'visible';
   document.getElementById('anaMenuFloatBtn').style.display = 'none';
   updateSiparisBadge();
+  updateBankaBadge();
   nudge();
 }
 document.getElementById('anaMenuFloatBtn').onclick = () => showAnaMenu();
@@ -3709,6 +3773,11 @@ document.getElementById('anaMenu').querySelectorAll('.am-tile').forEach(tile=>{
       renderKasa();
       hideAllScreens();
       kasaScreen.classList.add('show');
+      nudge();
+    } else if(mod === 'banka'){
+      renderBanka();
+      hideAllScreens();
+      document.getElementById('bankaScreen').classList.add('show');
       nudge();
     } else if(mod === 'urunler'){
       renderUrunler();
@@ -3843,7 +3912,149 @@ function renderKasa(){
   });
 }
 
-// ---------- Gelen Çekler — tüm carilerden alınan çeklerin tek listede takibi.
+// ---------- Banka — ayrı, kendi bakiyesi olan basit bir hareket defteri
+// (Kasa/nakit ile karışmaz). Para Yatır bakiyeyi artırır, Para Çek azaltır;
+// bakiye her zaman transactions'tan hesaplanır (ayrı bir sayaç tutulmaz). ----------
+function renderBanka(){
+  document.getElementById('bankaToplam').textContent = fmt(bankaBakiye());
+
+  const rows = state.banka.transactions.map((t, idx) => ({ t, idx }));
+  rows.sort((a,b)=> new Date(b.t.date) - new Date(a.t.date));
+  const list = document.getElementById('bankaList');
+  if(!rows.length){
+    list.innerHTML = '<div class="empty-tx">Henüz banka hareketi yok</div>';
+    updateBankaBadge();
+    return;
+  }
+
+  const keyOf = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  const groups = new Map();
+  rows.forEach(({t, idx})=>{
+    const d = new Date(t.date);
+    const key = keyOf(d);
+    if(!groups.has(key)) groups.set(key, { label: d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'}), rows: [], total: 0 });
+    const g = groups.get(key);
+    const signed = t.type === 'YATIR' ? t.amount : -t.amount;
+    g.total += signed;
+    g.rows.push({ t, idx });
+  });
+  const sortedKeys = [...groups.keys()].sort((a,b)=> b.localeCompare(a));
+
+  list.innerHTML = sortedKeys.map((key, gi)=>{
+    const g = groups.get(key);
+    const isOpen = gi === 0;
+    const rowsHtml = g.rows.map(({t, idx})=>{
+      const neg = t.type === 'CEK';
+      const dateStr = new Date(t.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'})
+        + ', ' + new Date(t.date).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+      const [main, cents] = fmtPlain(t.amount).split(',');
+      return `
+        <div class="swipe-wrap">
+          <div class="swipe-actions">
+            <button class="swipe-btn sip-list-duzenle banka-duzenle" data-idx="${idx}">Değiştir</button>
+            <button class="swipe-btn sip-list-sil banka-sil" data-idx="${idx}">Sil</button>
+          </div>
+          <div class="tx-row swipe-content" data-idx="${idx}">
+            <div class="tx-left">
+              <div class="tx-type ${neg ? 'neg' : 'pos'}">${neg ? 'PARA ÇEK' : 'PARA YATIR'} <span class="tx-date">${dateStr}</span></div>
+              ${t.desc ? `<div class="tx-desc">${t.desc}</div>` : ''}
+            </div>
+            <div class="tx-amount ${neg ? 'neg' : ''}">${neg ? '-' : ''}${main}<span class="cents">,${cents}</span></div>
+          </div>
+        </div>`;
+    }).join('');
+    const [gMain, gCents] = fmtPlain(g.total).split(',');
+    return `
+      <div class="kasa-ay-group">
+        <div class="kasa-ay-header" data-key="${key}">
+          <div class="kasa-ay-label"><span class="kasa-ay-chevron">${isOpen ? '▴' : '▾'}</span> ${g.label}</div>
+          <div class="kasa-ay-toplam ${g.total<0?'neg':''}">${gMain}<span class="cents">,${gCents}</span></div>
+        </div>
+        <div class="kasa-ay-body${isOpen ? '' : ' hidden'}" id="bankaAy-${key}">${rowsHtml}</div>
+      </div>`;
+  }).join('');
+
+  list.querySelectorAll('.kasa-ay-header').forEach(header=>{
+    header.onclick = () => {
+      const key = header.dataset.key;
+      const body = document.getElementById('bankaAy-' + key);
+      body.classList.toggle('hidden');
+      header.querySelector('.kasa-ay-chevron').textContent = body.classList.contains('hidden') ? '▾' : '▴';
+    };
+  });
+  list.querySelectorAll('.banka-duzenle').forEach(btn=>{
+    btn.onclick = (e) => { e.stopPropagation(); openBankaForm(parseInt(btn.dataset.idx, 10)); };
+  });
+  list.querySelectorAll('.banka-sil').forEach(btn=>{
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx, 10);
+      openConfirm('Bu hareketi sil', 'Bu işlem geri alınamaz. Emin misin?', () => {
+        state.banka.transactions.splice(idx, 1);
+        save();
+        renderBanka();
+      });
+    };
+  });
+  list.querySelectorAll('.swipe-content[data-idx]').forEach(el=>{
+    el.onclick = () => {
+      if(el.__isSwipeMoved && el.__isSwipeMoved()) return;
+      if(el.classList.contains('swiped')){ el.style.transform=''; el.classList.remove('swiped'); return; }
+      openBankaForm(parseInt(el.dataset.idx, 10));
+    };
+  });
+  enableSwipeRows(list);
+  updateBankaBadge();
+}
+
+let bankaEditIdx = null;
+let bankaSegTur = 'YATIR';
+function openBankaForm(idx){
+  bankaEditIdx = (idx === undefined) ? null : idx;
+  const t = (bankaEditIdx !== null) ? state.banka.transactions[bankaEditIdx] : null;
+  bankaSegTur = t ? t.type : 'YATIR';
+  document.getElementById('bankaSegYatir').classList.toggle('active', bankaSegTur === 'YATIR');
+  document.getElementById('bankaSegYatir').classList.toggle('income', bankaSegTur === 'YATIR');
+  document.getElementById('bankaSegCek').classList.toggle('active', bankaSegTur === 'CEK');
+  document.getElementById('bankaSegCek').classList.toggle('expense', bankaSegTur === 'CEK');
+  document.getElementById('bankaDesc').value = t ? (t.desc || '') : '';
+  document.getElementById('bankaAmount').value = t ? t.amount : '';
+  document.getElementById('bankaTarih').value = t ? new Date(t.date).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
+  document.getElementById('bankaOverlay').classList.add('show');
+}
+document.getElementById('bankaAddBtn').onclick = () => openBankaForm();
+document.getElementById('bankaSegYatir').onclick = () => {
+  bankaSegTur = 'YATIR';
+  document.getElementById('bankaSegYatir').classList.add('active','income');
+  document.getElementById('bankaSegCek').classList.remove('active','expense');
+};
+document.getElementById('bankaSegCek').onclick = () => {
+  bankaSegTur = 'CEK';
+  document.getElementById('bankaSegCek').classList.add('active','expense');
+  document.getElementById('bankaSegYatir').classList.remove('active','income');
+};
+document.getElementById('bankaCancelBtn').onclick = () => { document.getElementById('bankaOverlay').classList.remove('show'); };
+document.getElementById('bankaOverlay').onclick = (e) => {
+  if(e.target.id === 'bankaOverlay') document.getElementById('bankaOverlay').classList.remove('show');
+};
+document.getElementById('bankaSaveBtn').onclick = () => {
+  const desc = document.getElementById('bankaDesc').value.trim();
+  const amount = parseFloat(document.getElementById('bankaAmount').value);
+  const tarihVal = document.getElementById('bankaTarih').value;
+  if(!amount || amount <= 0){ alertBox('Lütfen geçerli bir tutar gir.'); return; }
+  const date = tarihVal ? new Date(tarihVal + 'T12:00:00.000Z').toISOString() : new Date().toISOString();
+  const tx = { type: bankaSegTur, desc, amount, date };
+  if(bankaEditIdx !== null){
+    state.banka.transactions[bankaEditIdx] = tx;
+  } else {
+    state.banka.transactions.push(tx);
+  }
+  save();
+  document.getElementById('bankaOverlay').classList.remove('show');
+  renderBanka();
+};
+
+
 // Kasada duran çekler buradan bir tedarikçiye "Çıkışa Ver" ile ödeme olarak devredilebilir;
 // orijinal Tahsilat hareketi ve Kasa'daki kaydı hiç değişmeden kalır, sadece durum güncellenir. ----------
 document.getElementById('gelenCeklerCard').onclick = () => {
@@ -5914,6 +6125,8 @@ document.getElementById('ayarGeriYukleInput').onchange = (e) => {
       if(!state.tedarikci) state.tedarikci = [];
       if(!state.stokKartlari) state.stokKartlari = [];
       if(!state.transactions) state.transactions = [];
+      if(!state.banka) state.banka = { transactions: [] };
+      if(!state.banka.transactions) state.banka.transactions = [];
       if(!state.sayaclar) state.sayaclar = { alis:0, satis:0, stok:0, siparis:0 };
       if(state.sayaclar.siparis === undefined) state.sayaclar.siparis = 0;
       if(!state.alisFisleri) state.alisFisleri = [];
@@ -5937,6 +6150,7 @@ document.getElementById('ayarHareketSifirlaBtn').onclick = () => {
     state.satisFisleri = [];
     state.siparisFisleri = [];
     state.transactions = [];
+    state.banka.transactions = [];
     state.sayaclar.alis = 0;
     state.sayaclar.satis = 0;
     state.sayaclar.siparis = 0;
@@ -5958,6 +6172,7 @@ document.getElementById('sifirlaEvet').onclick = () => {
     tedarikci: [],
     stokKartlari: [],
     transactions: [],
+    banka: { transactions: [] },
     sayaclar: { alis:0, satis:0, stok:0, siparis:0 },
     alisFisleri: [],
     satisFisleri: [],
