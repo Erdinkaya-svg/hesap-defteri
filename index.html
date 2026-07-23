@@ -672,8 +672,10 @@
         <span id="dEkstreCardMiniName">Hesap Adı</span>
       </div>
     </div>
-    <div style="display:flex;justify-content:center;margin-top:2px;margin-bottom:2px;">
-      <button id="dCardToggleBtn" title="Kartı küçült" style="width:44px;height:22px;border:none;background:transparent;color:var(--muted);font-size:15px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;">⌄</button>
+    <div style="display:flex;justify-content:center;margin-top:4px;margin-bottom:4px;">
+      <button id="dCardToggleBtn" title="Kartı küçült" style="width:38px;height:38px;border-radius:50%;border:none;background:var(--accent-soft);color:var(--accent);cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(20,30,40,.08);">
+        <svg id="dCardToggleIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .25s ease;"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
     </div>
     <div class="dcek-dots" id="dDots">
       <span class="dcek-dot active" data-i="0"></span>
@@ -2641,18 +2643,19 @@ function setDCardCollapsed(collapsed){
   const mini = document.getElementById('dEkstreCardMini');
   const dots = document.getElementById('dDots');
   const toggleBtn = document.getElementById('dCardToggleBtn');
+  const toggleIcon = document.getElementById('dCardToggleIcon');
   if(collapsed){
     document.getElementById('dEkstreCardMiniName').textContent = document.getElementById('dEkstreCardName').textContent;
     cardEl.classList.add('hidden');
     mini.classList.remove('hidden');
     dots.classList.add('hidden');
-    toggleBtn.textContent = '⌃';
+    toggleIcon.style.transform = 'rotate(180deg)';
     toggleBtn.title = 'Kartı büyüt';
   } else {
     cardEl.classList.remove('hidden');
     mini.classList.add('hidden');
     dots.classList.remove('hidden');
-    toggleBtn.textContent = '⌄';
+    toggleIcon.style.transform = 'rotate(0deg)';
     toggleBtn.title = 'Kartı küçült';
   }
 }
