@@ -162,6 +162,8 @@
   .swipe-btn.act-odeme{background:#c0392b;}
   .swipe-btn.sip-list-duzenle{background:#2f5c8a;}
   .swipe-btn.sip-list-sil{background:#c0392b;}
+  .swipe-btn.fis-list-duzenle{background:#2f5c8a;}
+  .swipe-btn.fis-list-sil{background:#c0392b;}
   .sk-list .swipe-wrap{border-radius:0;}
   .swipe-content{position:relative;background:#fff;transition:transform .2s ease;touch-action:pan-y;border-bottom:none !important;}
   .acct-row.bar{border-left:4px solid var(--accent);}
@@ -5205,6 +5207,10 @@ function fisTarihSinirDate(){
 function renderFisList(){
   const term = fisSearchTerm.toLocaleLowerCase('tr-TR');
   const sinir = fisTarihSinirDate();
+  const basitMod = (fisTuru === 'alis'); // Alışlar sadeleştirildi: sipariş/irsaliye ayrımı yok, hep fatura
+  document.getElementById('fisTurTabs').classList.toggle('hidden', basitMod);
+  document.getElementById('fisDateRange').closest('.fis-daterange').classList.toggle('hidden', basitMod);
+  if(basitMod){ fisTurFilter = 'fatura'; fisDateRangeFilter = 'hepsi'; }
   let list = fisListesi().filter(f=>{
     if(f.tur !== fisTurFilter) return false;
     if(sinir && new Date(f.tarih) < sinir) return false;
@@ -5214,23 +5220,40 @@ function renderFisList(){
   document.getElementById('fisListSearch').placeholder = fisTuru==='alis' ? 'alış arama' : 'satış arama';
   const fisList = document.getElementById('fisList');
   fisList.innerHTML = list.length ? list.map(f=>`
-    <div class="sk-card" data-id="${f.id}">
-      <div class="sk-card-top">
-        <div>
-          <div class="sk-card-name">${trDate(f.tarih)}</div>
-          <div class="sk-card-code">${f.cariAdi || '—'}</div>
-        </div>
-        <div class="sk-card-qty">${fmt(toNum(f.toplam))}</div>
+    <div class="swipe-wrap">
+      <div class="swipe-actions">
+        <button class="swipe-btn fis-list-duzenle" data-id="${f.id}">Değiştir</button>
+        <button class="swipe-btn fis-list-sil" data-id="${f.id}">Sil</button>
       </div>
-      <div class="sk-card-bottom">
-        <span>${f.belgeNo || '—'}</span>
-        <span class="fis-card-durum ${f.tur==='siparis'?'taslak':''}">${fisDurumEtiketi(f.tur)}</span>
+      <div class="sk-card swipe-content" data-id="${f.id}">
+        <div class="sk-card-top">
+          <div>
+            <div class="sk-card-name">${trDate(f.tarih)}</div>
+            <div class="sk-card-code">${f.cariAdi || '—'}</div>
+          </div>
+          <div class="sk-card-qty">${fmt(toNum(f.toplam))}</div>
+        </div>
+        <div class="sk-card-bottom">
+          <span>${f.belgeNo || '—'}</span>
+          <span class="fis-card-durum ${f.tur==='siparis'?'taslak':''}">${fisDurumEtiketi(f.tur)}</span>
+        </div>
       </div>
     </div>
   `).join('') : '<div class="sk-empty">Henüz fiş yok — sağ alttaki ＋ ile ekleyin</div>';
-  fisList.querySelectorAll('.sk-card[data-id]').forEach(el=>{
-    el.onclick = () => openFisDetay(el.dataset.id);
+  fisList.querySelectorAll('.sk-card[data-id]').forEach(card=>{
+    card.onclick = () => {
+      if(card.__isSwipeMoved && card.__isSwipeMoved()) return;
+      if(card.classList.contains('swiped')){ card.style.transform=''; card.classList.remove('swiped'); return; }
+      openFisDetay(card.dataset.id);
+    };
   });
+  fisList.querySelectorAll('.fis-list-duzenle').forEach(btn=>{
+    btn.onclick = (e) => { e.stopPropagation(); openFisDetay(btn.dataset.id); };
+  });
+  fisList.querySelectorAll('.fis-list-sil').forEach(btn=>{
+    btn.onclick = (e) => { e.stopPropagation(); fisSilOnayla(btn.dataset.id); };
+  });
+  enableSimpleSwipe(fisList, 168);
 }
 document.getElementById('fisListSearch').oninput = e => { fisSearchTerm = e.target.value; renderFisList(); };
 document.getElementById('fisDateRange').onchange = e => { fisDateRangeFilter = e.target.value; renderFisList(); };
@@ -5365,16 +5388,21 @@ document.getElementById('fisDetayBack').onclick = () => {
 };
 document.getElementById('fisVazgec').onclick = () => document.getElementById('fisDetayBack').onclick();
 
-document.getElementById('fisDetaySil').onclick = () => {
-  if(!editingFisId) return;
+function fisSilOnayla(fisId, onDone){
   openConfirm('Bu fişi sil', 'Bağlı stok ve cari hareketleri de silinecek. Bu işlem geri alınamaz.', () => {
-    silFisKalemleri(editingFisId);
+    silFisKalemleri(fisId);
     const liste = fisListesi();
-    const idx = liste.findIndex(x=>x.id===editingFisId);
+    const idx = liste.findIndex(x=>x.id===fisId);
     if(idx !== -1) liste.splice(idx,1);
     save();
-    document.getElementById('fisDetayBack').onclick();
+    render();
+    renderCariHesaplar();
+    if(onDone) onDone(); else renderFisList();
   });
+}
+document.getElementById('fisDetaySil').onclick = () => {
+  if(!editingFisId) return;
+  fisSilOnayla(editingFisId, () => document.getElementById('fisDetayBack').onclick());
 };
 
 document.getElementById('fisKaydet').onclick = () => {
