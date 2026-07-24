@@ -1542,10 +1542,6 @@
 <div class="overlay" id="bankaOverlay">
   <div class="modal">
     <h3>Banka Hareketi</h3>
-    <div class="seg">
-      <button class="active income" id="bankaSegYatir" type="button">Para Yatır</button>
-      <button id="bankaSegCek" type="button">Para Çek</button>
-    </div>
     <div class="ios-card">
       <div class="field-ios">
         <label>Açıklama</label>
@@ -4265,31 +4261,17 @@ document.getElementById('bankaBilgiOverlay').onclick = (e) => {
 };
 
 let bankaEditIdx = null;
-let bankaSegTur = 'YATIR';
+let bankaSegTur = 'CEK';
 function openBankaForm(idx){
   bankaEditIdx = (idx === undefined) ? null : idx;
   const t = (bankaEditIdx !== null) ? state.banka.transactions[bankaEditIdx] : null;
-  bankaSegTur = t ? t.type : 'YATIR';
-  document.getElementById('bankaSegYatir').classList.toggle('active', bankaSegTur === 'YATIR');
-  document.getElementById('bankaSegYatir').classList.toggle('income', bankaSegTur === 'YATIR');
-  document.getElementById('bankaSegCek').classList.toggle('active', bankaSegTur === 'CEK');
-  document.getElementById('bankaSegCek').classList.toggle('expense', bankaSegTur === 'CEK');
+  bankaSegTur = t ? t.type : 'CEK';
   document.getElementById('bankaDesc').value = t ? (t.desc || '') : '';
   document.getElementById('bankaAmount').value = t ? t.amount : '';
   document.getElementById('bankaTarih').value = t ? new Date(t.date).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
   document.getElementById('bankaOverlay').classList.add('show');
 }
 document.getElementById('bankaAddBtn').onclick = () => openBankaForm();
-document.getElementById('bankaSegYatir').onclick = () => {
-  bankaSegTur = 'YATIR';
-  document.getElementById('bankaSegYatir').classList.add('active','income');
-  document.getElementById('bankaSegCek').classList.remove('active','expense');
-};
-document.getElementById('bankaSegCek').onclick = () => {
-  bankaSegTur = 'CEK';
-  document.getElementById('bankaSegCek').classList.add('active','expense');
-  document.getElementById('bankaSegYatir').classList.remove('active','income');
-};
 document.getElementById('bankaCancelBtn').onclick = () => { document.getElementById('bankaOverlay').classList.remove('show'); };
 document.getElementById('bankaOverlay').onclick = (e) => {
   if(e.target.id === 'bankaOverlay') document.getElementById('bankaOverlay').classList.remove('show');
