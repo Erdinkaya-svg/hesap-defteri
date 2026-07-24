@@ -1531,6 +1531,21 @@
   </div>
 </div>
 
+<div class="overlay" id="bankaBilgiOverlay">
+  <div class="modal">
+    <h3>Banka Hareketi</h3>
+    <div class="acct-card" style="padding:4px 14px;margin:0;">
+      <div class="gg-row"><span class="lbl">Açıklama</span><span class="val" id="bankaBilgiDesc">—</span></div>
+      <div class="gg-row"><span class="lbl">Tür</span><span class="val" id="bankaBilgiTur">—</span></div>
+      <div class="gg-row"><span class="lbl">Tutar</span><span class="val" id="bankaBilgiTutar">—</span></div>
+      <div class="gg-row"><span class="lbl">Tarih</span><span class="val" id="bankaBilgiTarih">—</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" id="bankaBilgiKapatBtn" style="width:100%;">Kapat</button>
+    </div>
+  </div>
+</div>
+
 <div class="detail-screen" id="kasaCekScreen">
   <div class="d-header">
     <div class="d-title">Gelen Çekler</div>
@@ -4131,12 +4146,29 @@ function renderBanka(){
     el.onclick = () => {
       if(el.__isSwipeMoved && el.__isSwipeMoved()) return;
       if(el.classList.contains('swiped')){ el.style.transform=''; el.classList.remove('swiped'); return; }
-      openBankaForm(parseInt(el.dataset.idx, 10));
+      openBankaBilgi(parseInt(el.dataset.idx, 10));
     };
   });
   enableSwipeRows(list);
   updateBankaBadge();
 }
+
+function openBankaBilgi(idx){
+  const t = state.banka.transactions[idx];
+  if(!t) return;
+  document.getElementById('bankaBilgiDesc').textContent = t.desc || '—';
+  document.getElementById('bankaBilgiTur').textContent = t.type === 'YATIR' ? 'Para Yatır' : 'Para Çek';
+  const tutarEl = document.getElementById('bankaBilgiTutar');
+  tutarEl.textContent = fmt(t.amount);
+  tutarEl.classList.toggle('neg', t.type === 'CEK');
+  tutarEl.classList.toggle('pos', t.type === 'YATIR');
+  document.getElementById('bankaBilgiTarih').textContent = new Date(t.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('bankaBilgiOverlay').classList.add('show');
+}
+document.getElementById('bankaBilgiKapatBtn').onclick = () => { document.getElementById('bankaBilgiOverlay').classList.remove('show'); };
+document.getElementById('bankaBilgiOverlay').onclick = (e) => {
+  if(e.target.id === 'bankaBilgiOverlay') document.getElementById('bankaBilgiOverlay').classList.remove('show');
+};
 
 let bankaEditIdx = null;
 let bankaSegTur = 'YATIR';
