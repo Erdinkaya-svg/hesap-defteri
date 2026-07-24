@@ -4006,7 +4006,7 @@ function renderTaksitler(){
         ${circleHtml}
         <div class="name-wrap" style="flex:1;min-width:0;margin-left:12px;">
           <span class="name">${t.desc}</span>
-          <div class="siparis-teslimat-row son-hareket-text">${dateStr}${t.kart ? ' · ' + t.kart : ''}</div>
+          <div class="siparis-teslimat-row son-hareket-text">${dateStr}${t.kart ? ' · ' + t.kart : ''}${kalan>0 ? ' · ' + kalan + ' taksit kaldı' : ''}</div>
         </div>
         <span class="amount ${kalan>0 ? 'neg':''}">${fmtWhole(kalan>0 ? kalan*t.taksitTutari : t.taksitTutari*t.taksitSayisi)}</span>
       </div>`;
