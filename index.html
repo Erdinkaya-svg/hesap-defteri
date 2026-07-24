@@ -6971,6 +6971,30 @@ function ensureGarantiMasraflarTemmuz2026(){
 }
 if(ensureGarantiMasraflarTemmuz2026()) save();
 
+// Temmuz 2026: Kullanıcı "market alışverişi masrafları var, onları masrafa yaz" dedi —
+// Garanti BBVA'dan zaten Banka moduline (Para Çek) işlenmiş MAVI MARKET harcamaları
+// (22.07.2026, 185₺ ve 465₺) AYRICA Masraflar moduline de "Mavi Market" kalemi olarak
+// eklendi (Banka'daki kayıtlara dokunulmadı, iki modül farklı amaçla aynı veriyi tutuyor).
+function ensureMaviMarketMasrafKalemi(){
+  let changed = false;
+  let kalem = state.masrafHesaplari.find(k => normAd(k.name) === normAd('Mavi Market'));
+  if(!kalem){
+    kalem = { id: 'mk_mavimarket', name: 'Mavi Market', transactions: [] };
+    state.masrafHesaplari.push(kalem);
+    changed = true;
+  }
+  if(!kalem.transactions.some(t => t.date === '2026-07-22T14:13:30.000Z' && t.amount === 185)){
+    kalem.transactions.push({ desc:'Alışveriş (Garanti BBVA kart harcaması)', amount:185.00, date:'2026-07-22T14:13:30.000Z' });
+    changed = true;
+  }
+  if(!kalem.transactions.some(t => t.date === '2026-07-22T20:19:21.000Z' && t.amount === 465)){
+    kalem.transactions.push({ desc:'Alışveriş (Garanti BBVA kart harcaması)', amount:465.00, date:'2026-07-22T20:19:21.000Z' });
+    changed = true;
+  }
+  return changed;
+}
+if(ensureMaviMarketMasrafKalemi()) save();
+
 // Kullanıcının gönderdiği ekstre ekran görüntülerinden (Drysan Kuru Temizleme, Temmuz 2023
 // - Haziran 2026 arası) elle işlendi. Toplam 199.110,00 satış / -198.860,00 tahsilat = 250,00
 // net bakiye ile ekran görüntüsündeki "TOPLAM ₺ 250,00" ile birebir eşleşiyor.
