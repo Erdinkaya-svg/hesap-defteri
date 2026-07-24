@@ -189,6 +189,12 @@
   .spacer{height:14px;}
 
   .overlay{position:fixed;inset:0;background:rgba(20,30,35,.45);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  .islem-overlay{align-items:center !important;}
+  .islem-overlay .islem-modal{width:auto;min-width:220px;max-width:280px;border-radius:22px;padding:26px 22px 22px 22px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25);}
+  .islem-spinner{width:40px;height:40px;margin:0 auto 14px auto;border-radius:50%;border:3.5px solid #e8ecee;border-top-color:#2e56c9;animation:islemSpin .8s linear infinite;}
+  @keyframes islemSpin{to{transform:rotate(360deg);}}
+  .islem-progress-track{width:100%;height:6px;background:#e8ecee;border-radius:6px;overflow:hidden;margin-top:16px;}
+  .islem-progress-fill{height:100%;width:0%;border-radius:6px;background:linear-gradient(90deg,#4ec98a,#2e56c9);}
   .hidden{display:none !important;}
   #tahYontemOverlay{align-items:center;}
   #cekWizOverlay{align-items:center;}
@@ -282,6 +288,10 @@
   .tx-date{font-weight:400;color:var(--muted);text-transform:none;font-size:14px;}
   .tx-transfer{color:var(--accent);font-size:14px;margin-top:2px;}
   .tx-desc{color:#3d4b50;font-size:14px;margin-top:2px;}
+  .tx-date-circle{width:46px;height:46px;border-radius:50%;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10.5px;line-height:1.05;font-weight:800;flex-shrink:0;letter-spacing:.2px;box-shadow:0 3px 8px rgba(0,0,0,.18);}
+  .tx-date-circle b{font-size:17px;line-height:1.05;font-weight:800;}
+  .tx-date-circle.islendi{background:linear-gradient(135deg,#4ec98a,#1f8a54);}
+  .tx-date-circle.yeni{background:linear-gradient(135deg,#f5c56a,#dd9a1e);}
   .tx-amount{font-size:22px;font-weight:600;white-space:nowrap;}
   .tx-amount.neg{color:var(--red);}
   .tx-amount .cents{font-size:14px;}
@@ -1031,6 +1041,15 @@
     <p id="confirmDeleteText" style="color:var(--muted);font-size:14px;margin:0 0 16px 0;">Bu işlem geri alınamaz. Emin misin?</p>
     <button id="confirmDeleteYes" style="width:100%;padding:14px 0;border:none;border-radius:12px;background:var(--red);color:#fff;font-weight:700;font-size:15px;cursor:pointer;">Evet, Sil</button>
     <button id="confirmDeleteNo" style="margin-top:8px;width:100%;padding:14px 0;border:none;border-radius:12px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">Vazgeç</button>
+  </div>
+</div>
+
+<div class="overlay islem-overlay" id="islemYapiliyorOverlay" style="z-index:200;">
+  <div class="modal islem-modal">
+    <div class="islem-spinner"></div>
+    <div style="font-weight:700;font-size:15px;color:var(--ink);">İşleminiz Yapılıyor</div>
+    <div style="color:var(--muted);font-size:12.5px;margin-top:4px;">Lütfen bekleyin...</div>
+    <div class="islem-progress-track"><div class="islem-progress-fill" id="islemProgressFill"></div></div>
   </div>
 </div>
 
@@ -3802,6 +3821,21 @@ function removeCurrentReceiptTx(){
 }
 
 let confirmDeleteAction = null;
+function showIslemYapiliyor(callback, duration){
+  duration = duration || 3000;
+  const overlay = document.getElementById('islemYapiliyorOverlay');
+  const fill = document.getElementById('islemProgressFill');
+  fill.style.transition = 'none';
+  fill.style.width = '0%';
+  overlay.classList.add('show');
+  void fill.offsetWidth;
+  fill.style.transition = 'width ' + duration + 'ms linear';
+  fill.style.width = '100%';
+  setTimeout(() => {
+    overlay.classList.remove('show');
+    if(callback) callback();
+  }, duration);
+}
 function openConfirm(title, text, action, yesLabel){
   document.getElementById('confirmDeleteTitle').textContent = title;
   document.getElementById('confirmDeleteText').textContent = text;
@@ -3831,9 +3865,10 @@ document.getElementById('confirmDeleteNo').onclick = () => {
   document.getElementById('confirmDeleteOverlay').classList.remove('show');
 };
 document.getElementById('confirmDeleteYes').onclick = () => {
-  if(confirmDeleteAction) confirmDeleteAction();
-  confirmDeleteAction = null;
   document.getElementById('confirmDeleteOverlay').classList.remove('show');
+  const action = confirmDeleteAction;
+  confirmDeleteAction = null;
+  if(action) showIslemYapiliyor(action);
 };
 
 function openTxEditForm(t){
@@ -4137,7 +4172,7 @@ function renderTaksitler(){
     const kalan = taksitKalan(t);
     const dateStr = new Date(t.tarih).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'});
     const anaRenk = kalan === 0 ? '#1f8a54' : (kalan === 1 ? '#d98c1f' : '#2f6690');
-    const anaIcerik = kalan === 0 ? '<b>✓</b>BİTTİ' : `<b>${kalan}</b>`;
+    const anaIcerik = kalan === 0 ? '<b>✓</b>BİTTİ' : `<b>${kalan}</b>KALAN`;
     const kalanRenk = '#1c3566';
     const kalanRozet = kalan > 0
       ? `<span style="position:absolute;top:-6px;left:-6px;min-width:24px;height:24px;padding:0 5px;border-radius:50%;background:${kalanRenk};color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.3);border:2px solid #fff;">${t.taksitSayisi}</span>`
@@ -4267,6 +4302,7 @@ function renderBanka(){
             <button class="swipe-btn sip-list-tahsilat banka-tahsilat" data-idx="${idx}">Tahsilat</button>
           </div>
           <div class="tx-row swipe-content" data-idx="${idx}">
+            <span class="tx-date-circle yeni"><b>${new Date(t.date).getDate()}</b>${new Date(t.date).toLocaleDateString('tr-TR', {month:'short'}).toUpperCase().replace('.', '')}</span>
             <div class="tx-left">
               <div class="tx-type ${neg ? 'neg' : 'pos'}"><span class="tx-date">${dateStr}</span></div>
               ${t.desc ? `<div class="tx-desc">${t.desc}</div>` : ''}
@@ -4354,6 +4390,7 @@ function renderBankaIslenen(){
           <button class="swipe-btn sip-list-duzenle banka-geri-al" data-idx="${idx}">Geri Al</button>
         </div>
         <div class="tx-row swipe-content" data-idx="${idx}">
+          <span class="tx-date-circle islendi"><b>${new Date(t.date).getDate()}</b>${new Date(t.date).toLocaleDateString('tr-TR', {month:'short'}).toUpperCase().replace('.', '')}</span>
           <div class="tx-left">
             <div class="tx-type ${neg ? 'neg' : 'pos'}"><span class="tx-date">${dateStr}</span></div>
             ${t.desc ? `<div class="tx-desc">${t.desc}</div>` : ''}
@@ -6829,21 +6866,23 @@ document.getElementById('sifirlaVazgec').onclick = () => {
   document.getElementById('sifirlaOverlay').classList.remove('show');
 };
 document.getElementById('sifirlaEvet').onclick = () => {
-  state = {
-    cash: 0,
-    cari: [],
-    tedarikci: [],
-    stokKartlari: [],
-    transactions: [],
-    banka: { transactions: [] },
-    sayaclar: { alis:0, satis:0, stok:0, siparis:0 },
-    alisFisleri: [],
-    satisFisleri: [],
-    siparisFisleri: []
-  };
-  save();
   document.getElementById('sifirlaOverlay').classList.remove('show');
-  showAnaMenu();
+  showIslemYapiliyor(() => {
+    state = {
+      cash: 0,
+      cari: [],
+      tedarikci: [],
+      stokKartlari: [],
+      transactions: [],
+      banka: { transactions: [] },
+      sayaclar: { alis:0, satis:0, stok:0, siparis:0 },
+      alisFisleri: [],
+      satisFisleri: [],
+      siparisFisleri: []
+    };
+    save();
+    showAnaMenu();
+  });
 };
 
 function alertBox(msg){
@@ -7312,6 +7351,42 @@ function ensureA101MasrafKalemi(){
   return changed;
 }
 if(ensureA101MasrafKalemi()) save();
+
+// Temmuz 2026: Bonus Flexi Card ekstresi (Haziran 2026 dönemi, son ödeme 13 Temmuz 2026)
+// IYZICO *AMAZON.COM.T / *AMAZONPRİMET taksitli harcamaları Banka > Taksitler'e "Bonus Flexi
+// Card" kartıyla eklendi (mevcut Bonus Platinum kayıtlarından ayrı tutuluyor). Taksit numarası
+// ekstrede görünmeyen 66,02₺ ve 49,40₺ kalemleri 1.Taksit kabul edildi — ekstrede net görünmüyorsa
+// kontrol edilmeli. Taksitsiz (peşin) 159,00₺ ve 69,90₺ kalemleri Banka hareketlerine CEK olarak eklendi.
+function ensureBonusFlexiCard(){
+  let changed = false;
+  const taksitler = [
+    { desc:'IYZICO *AMAZON.COM.T', taksitTutari:1079.61, taksitSayisi:6, odenenTaksit:4, tarih:'2026-06-04T00:00:00', kart:'Bonus Flexi Card' },
+    { desc:'IYZICO *AMAZON.COM.T', taksitTutari:380.55, taksitSayisi:9, odenenTaksit:4, tarih:'2026-06-06T00:00:00', kart:'Bonus Flexi Card' },
+    { desc:'IYZICO *AMAZON.COM.T', taksitTutari:380.55, taksitSayisi:9, odenenTaksit:4, tarih:'2026-06-06T00:00:01', kart:'Bonus Flexi Card' },
+    { desc:'IYZICO *AMAZON.COM.T', taksitTutari:66.02, taksitSayisi:9, odenenTaksit:1, tarih:'2026-06-09T00:00:00', kart:'Bonus Flexi Card' },
+    { desc:'IYZICO *AMAZON.COM.T', taksitTutari:49.40, taksitSayisi:6, odenenTaksit:1, tarih:'2026-06-09T00:00:01', kart:'Bonus Flexi Card' },
+    { desc:'IYZICO *AMAZON.COM.T', taksitTutari:1089.66, taksitSayisi:3, odenenTaksit:3, tarih:'2026-06-10T00:00:00', kart:'Bonus Flexi Card' },
+    { desc:'IYZICO *AMAZON.COM.T', taksitTutari:938.39, taksitSayisi:6, odenenTaksit:6, tarih:'2026-06-18T00:00:00', kart:'Bonus Flexi Card' }
+  ];
+  taksitler.forEach(tk=>{
+    if(!state.banka.taksitler.some(x => x.tarih === tk.tarih && x.taksitTutari === tk.taksitTutari && x.desc === tk.desc)){
+      state.banka.taksitler.push(tk);
+      changed = true;
+    }
+  });
+  const tekSeferlik = [
+    { type:'CEK', desc:'IYZICO *AMAZON.COM.T (Bonus Flexi Card)', amount:159.00, date:'2026-06-11T00:00:00' },
+    { type:'CEK', desc:'IYZICO *AMAZONPRİMET (Bonus Flexi Card)', amount:69.90, date:'2026-06-13T00:00:00' }
+  ];
+  tekSeferlik.forEach(t=>{
+    if(!state.banka.transactions.some(x => x.date === t.date && x.amount === t.amount && x.desc === t.desc)){
+      state.banka.transactions.push(t);
+      changed = true;
+    }
+  });
+  return changed;
+}
+if(ensureBonusFlexiCard()) save();
 
 // Kullanıcının gönderdiği ekstre ekran görüntülerinden (Drysan Kuru Temizleme, Temmuz 2023
 // - Haziran 2026 arası) elle işlendi. Toplam 199.110,00 satış / -198.860,00 tahsilat = 250,00
