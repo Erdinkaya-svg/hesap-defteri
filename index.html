@@ -1514,6 +1514,10 @@
       <div class="sheet-title">DİĞER HAREKETLER</div>
       <div id="bankaList"></div>
     </div>
+    <div id="islenenBolum">
+      <div class="sheet-title">İŞLENEN HAREKETLER</div>
+      <div id="bankaIslenenList"></div>
+    </div>
   </div>
 </div>
 
@@ -4186,9 +4190,10 @@ function renderBanka(){
   document.getElementById('tekIslemToplam').textContent = fmt(bankaBakiye());
   document.getElementById('tekIslemSayisi').textContent = state.banka.transactions.length;
 
-  const rows = state.banka.transactions.map((t, idx) => ({ t, idx }));
+  const rows = state.banka.transactions.map((t, idx) => ({ t, idx })).filter(({t}) => !t.islendi);
   rows.sort((a,b)=> new Date(b.t.date) - new Date(a.t.date));
   const list = document.getElementById('bankaList');
+  renderBankaIslenen();
   if(!rows.length){
     list.innerHTML = '<div class="empty-tx">Henüz banka hareketi yok</div>';
     updateBankaBadge();
@@ -4287,6 +4292,55 @@ function renderBanka(){
   updateBankaBadge();
 }
 
+function renderBankaIslenen(){
+  const rows = state.banka.transactions.map((t, idx) => ({ t, idx })).filter(({t}) => t.islendi);
+  rows.sort((a,b)=> new Date(b.t.date) - new Date(a.t.date));
+  const list = document.getElementById('bankaIslenenList');
+  if(!rows.length){
+    list.innerHTML = '<div class="empty-tx">Henüz işlenen hareket yok</div>';
+    return;
+  }
+  list.innerHTML = rows.map(({t, idx})=>{
+    const neg = t.type === 'CEK';
+    const dateStr = new Date(t.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'})
+      + ', ' + new Date(t.date).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+    const [main, cents] = fmtPlain(t.amount).split(',');
+    return `
+      <div class="swipe-wrap">
+        <div class="swipe-actions">
+          <button class="swipe-btn sip-list-duzenle banka-geri-al" data-idx="${idx}">Geri Al</button>
+        </div>
+        <div class="tx-row swipe-content" data-idx="${idx}">
+          <div class="tx-left">
+            <div class="tx-type ${neg ? 'neg' : 'pos'}"><span class="tx-date">${dateStr}</span></div>
+            ${t.desc ? `<div class="tx-desc">${t.desc}</div>` : ''}
+          </div>
+          <div class="tx-amount ${neg ? 'neg' : ''}">${neg ? '-' : ''}${main}<span class="cents">,${cents}</span></div>
+        </div>
+      </div>`;
+  }).join('');
+  list.querySelectorAll('.banka-geri-al').forEach(btn=>{
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx, 10);
+      const t = state.banka.transactions[idx];
+      openConfirm('Geri Al', 'Bu hareket tekrar "Diğer Hareketler" listesine dönecek. Emin misin?', () => {
+        t.islendi = false;
+        save();
+        renderBanka();
+      }, 'Evet, Geri Al');
+    };
+  });
+  list.querySelectorAll('.swipe-content[data-idx]').forEach(el=>{
+    el.onclick = () => {
+      if(el.__isSwipeMoved && el.__isSwipeMoved()) return;
+      if(el.classList.contains('swiped')){ el.style.transform=''; el.classList.remove('swiped'); return; }
+      openBankaBilgi(parseInt(el.dataset.idx, 10));
+    };
+  });
+  enableSwipeRows(list);
+}
+
 function openBankaBilgi(idx){
   const t = state.banka.transactions[idx];
   if(!t) return;
@@ -4340,6 +4394,7 @@ function bankaTahsilatiUygula(cariId){
   if(!t || !c) return;
   c.transactions.push({ type:'TAHSİLAT', desc: t.desc ? ('Banka: ' + t.desc) : 'Banka havalesi', amount: Math.abs(t.amount), date: t.date });
   t.desc = (t.desc ? t.desc + ' — ' : '') + c.name + ' cari hesabına işlendi';
+  t.islendi = true;
   save();
   document.getElementById('bankaTahsilatSecOverlay').classList.remove('show');
   renderBanka();
@@ -4388,6 +4443,7 @@ function bankaOdemesiUygula(tedarikciId){
   if(!t || !td) return;
   td.transactions.push({ type:'ÖDEME', desc: t.desc ? ('Banka: ' + t.desc) : 'Banka havalesi', amount: Math.abs(t.amount), date: t.date });
   t.desc = (t.desc ? t.desc + ' — ' : '') + td.name + ' cari hesabına işlendi';
+  t.islendi = true;
   save();
   document.getElementById('bankaOdemeSecOverlay').classList.remove('show');
   renderBanka();
@@ -4437,6 +4493,7 @@ function bankaMasrafiUygula(kalemId){
   if(!k.transactions) k.transactions = [];
   k.transactions.push({ desc: t.desc ? ('Banka: ' + t.desc) : 'Banka havalesi', amount: Math.abs(t.amount), date: t.date });
   t.desc = (t.desc ? t.desc + ' — ' : '') + k.name + ' masrafına işlendi';
+  t.islendi = true;
   save();
   document.getElementById('bankaMasrafSecOverlay').classList.remove('show');
   renderBanka();
