@@ -121,7 +121,7 @@
   .taksit-detay-card .gg-row .lbl{font-size:15px;}
   .taksit-detay-card .gg-row .val{font-size:17px;}
     .cari-card{background:#fff;border-radius:16px;padding:14px;color:var(--ink);position:relative;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(20,40,50,.06);}
-  #cariSummaryCard{box-shadow:0 8px 16px rgba(20,40,50,.12);flex-shrink:0;}
+  #cariSummaryCard, #bankaSummaryCard{box-shadow:0 8px 16px rgba(20,40,50,.12);flex-shrink:0;}
   .acct-card.cari-sub{box-shadow:0 8px 16px rgba(20,40,50,.12);}
   .cari-card-top{display:flex;align-items:center;justify-content:space-between;}
   .cari-card-label{font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--muted);text-transform:uppercase;}
@@ -1465,22 +1465,42 @@
       </div>
       <div class="cari-card-balance" id="bankaToplam" style="color:#1a7a34;">0,00₺</div>
       <div class="cari-card-name">Güncel Banka Bakiyesi</div>
-      <div class="cari-card-bottom" style="align-items:center;">
-        <div class="cari-card-info" style="display:flex;flex-wrap:wrap;gap:8px 14px;">
-          <div style="flex:1 1 26%;min-width:92px;">
-            <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);">TOPLAM ALIŞVERİŞ</div>
-            <div id="taksitOzetToplam" style="font-size:12pt;font-weight:800;color:var(--ink);margin-top:2px;">0,00₺</div>
+      <div class="dcard-pager" id="bankaCardPager">
+        <div class="dcard-track" id="bankaCardTrack">
+          <div class="dcard-page" data-page="0">
+            <div class="cari-card-bottom" style="align-items:center;">
+              <div class="cari-card-info" style="display:flex;flex-wrap:wrap;gap:8px 14px;">
+                <div style="flex:1 1 40%;min-width:110px;">
+                  <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);">TOPLAM ALIŞVERİŞ</div>
+                  <div id="taksitOzetToplam" style="font-size:12pt;font-weight:800;color:var(--ink);margin-top:2px;">0,00₺</div>
+                </div>
+                <div style="flex:1 1 40%;min-width:110px;">
+                  <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);" id="taksitOzetAyAdi">BU AY ÖDENECEK</div>
+                  <div id="taksitOzetBuAy" style="font-size:12pt;font-weight:800;color:var(--red);margin-top:2px;">0,00₺</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div style="flex:1 1 26%;min-width:92px;">
-            <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);" id="taksitOzetAyAdi">BU AY ÖDENECEK</div>
-            <div id="taksitOzetBuAy" style="font-size:12pt;font-weight:800;color:var(--red);margin-top:2px;">0,00₺</div>
-          </div>
-          <div style="flex:1 1 26%;min-width:92px;">
-            <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);">TEK İŞLEMLİ TOPLAM</div>
-            <div id="tekIslemToplam" style="font-size:12pt;font-weight:800;color:var(--accent);margin-top:2px;">0,00₺</div>
+          <div class="dcard-page" data-page="1">
+            <div class="cari-card-bottom" style="align-items:center;">
+              <div class="cari-card-info" style="display:flex;flex-wrap:wrap;gap:8px 14px;">
+                <div style="flex:1 1 40%;min-width:110px;">
+                  <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);">TEK İŞLEMLİ TOPLAM</div>
+                  <div id="tekIslemToplam" style="font-size:12pt;font-weight:800;color:var(--accent);margin-top:2px;">0,00₺</div>
+                </div>
+                <div style="flex:1 1 40%;min-width:110px;">
+                  <div style="font-size:12pt;letter-spacing:.3px;color:var(--muted);">İŞLEM SAYISI</div>
+                  <div id="tekIslemSayisi" style="font-size:12pt;font-weight:800;color:var(--ink);margin-top:2px;">0</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+    <div class="dcek-dots" id="bankaDots">
+      <span class="dcek-dot active" data-i="0"></span>
+      <span class="dcek-dot" data-i="1"></span>
     </div>
   </div>
   <div class="d-list" id="bankaScrollArea" style="padding:14px 16px 100px 16px;">
@@ -3392,6 +3412,52 @@ function goToCardPage(idx, animate){
   dActivePage = idx;
 }
 
+let bankaActivePage = 0;
+function goToBankaCardPage(idx, animate){
+  const track = document.getElementById('bankaCardTrack');
+  track.style.transition = animate === false ? 'none' : 'transform .25s ease';
+  track.style.transform = `translateX(-${idx * 50}%)`;
+  document.querySelectorAll('#bankaDots .dcek-dot').forEach((d,i)=> d.classList.toggle('active', i===idx));
+  bankaActivePage = idx;
+}
+(function(){
+  const pager = document.getElementById('bankaCardPager');
+  const track = document.getElementById('bankaCardTrack');
+  const dots = document.querySelectorAll('#bankaDots .dcek-dot');
+  let startX = 0, lastX = 0, dragging = false, baseIdx = 0;
+  pager.addEventListener('pointerdown', (e)=>{
+    dragging = true;
+    startX = e.clientX; lastX = e.clientX;
+    baseIdx = bankaActivePage;
+    track.style.transition = 'none';
+  });
+  pager.addEventListener('pointermove', (e)=>{
+    if(!dragging) return;
+    lastX = e.clientX;
+    const delta = lastX - startX;
+    const pct = (delta / pager.clientWidth) * 50;
+    let x = -(baseIdx * 50) + pct;
+    x = Math.max(-50, Math.min(0, x));
+    track.style.transform = `translateX(${x}%)`;
+  });
+  function finish(){
+    if(!dragging) return;
+    dragging = false;
+    const delta = lastX - startX;
+    let newIdx = baseIdx;
+    if(Math.abs(delta) > pager.clientWidth * 0.18){
+      newIdx = delta < 0 ? baseIdx + 1 : baseIdx - 1;
+    }
+    newIdx = Math.max(0, Math.min(1, newIdx));
+    goToBankaCardPage(newIdx, true);
+  }
+  pager.addEventListener('pointerup', finish);
+  pager.addEventListener('pointercancel', finish);
+  dots.forEach(dot=>{
+    dot.onclick = () => goToBankaCardPage(parseInt(dot.dataset.i, 10), true);
+  });
+})();
+
 (function(){
   const pager = document.getElementById('dCardPager');
   const track = document.getElementById('dCardTrack');
@@ -3843,6 +3909,7 @@ document.getElementById('anaMenu').querySelectorAll('.am-tile').forEach(tile=>{
       nudge();
     } else if(mod === 'banka'){
       renderBanka();
+      goToBankaCardPage(0, false);
       hideAllScreens();
       document.getElementById('bankaScreen').classList.add('show');
       nudge();
@@ -4083,6 +4150,7 @@ function renderBanka(){
   renderTaksitOzet();
   document.getElementById('bankaToplam').textContent = fmt(bankaBakiye());
   document.getElementById('tekIslemToplam').textContent = fmt(bankaBakiye());
+  document.getElementById('tekIslemSayisi').textContent = state.banka.transactions.length;
 
   const rows = state.banka.transactions.map((t, idx) => ({ t, idx }));
   rows.sort((a,b)=> new Date(b.t.date) - new Date(a.t.date));
