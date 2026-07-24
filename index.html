@@ -7388,6 +7388,23 @@ function ensureBonusFlexiCard(){
 }
 if(ensureBonusFlexiCard()) save();
 
+// Temmuz 2026: 20.07.2026 kart harcamaları Banka moduline eklendi.
+function ensure20TemmuzHarcamalari(){
+  let changed = false;
+  const yeni = [
+    { type:'CEK', desc:'PAYTR ODEME /VIKTORIPRO (Ev / Dekorasyon)', amount:2615.00, date:'2026-07-20T00:00:00' },
+    { type:'CEK', desc:'ANTHROPIC* CLAUDE SUB (Elektronik)', amount:972.57, date:'2026-07-20T00:00:01' }
+  ];
+  yeni.forEach(t=>{
+    if(!state.banka.transactions.some(x => x.date === t.date && x.amount === t.amount && x.desc === t.desc)){
+      state.banka.transactions.push(t);
+      changed = true;
+    }
+  });
+  return changed;
+}
+if(ensure20TemmuzHarcamalari()) save();
+
 // Kullanıcının gönderdiği ekstre ekran görüntülerinden (Drysan Kuru Temizleme, Temmuz 2023
 // - Haziran 2026 arası) elle işlendi. Toplam 199.110,00 satış / -198.860,00 tahsilat = 250,00
 // net bakiye ile ekran görüntüsündeki "TOPLAM ₺ 250,00" ile birebir eşleşiyor.
