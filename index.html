@@ -3292,7 +3292,7 @@ function renderDetail(){
 
   dList.innerHTML = sortedKeys.map((key, gi)=>{
     const g = groups.get(key);
-    const rowsHtml = g.rows.map(({t, idx})=> rowHtml(t, idx)).join('');
+    const rowsHtml = g.rows.slice().reverse().map(({t, idx})=> rowHtml(t, idx)).join('');
     const [gMain, gCents] = fmtPlain(g.total).split(',');
     const isOpen = gi === 0;
     return `
