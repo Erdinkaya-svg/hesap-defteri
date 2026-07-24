@@ -171,6 +171,7 @@
   .swipe-btn.act-alis{background:#5b6b73;}
   .swipe-btn.act-odeme{background:#c0392b;}
   .swipe-btn.sip-list-duzenle{background:#2f5c8a;}
+  .swipe-btn.sip-list-tahsilat{background:#1f8a54;}
   .swipe-btn.sip-list-sil{background:#c0392b;}
   .swipe-btn.fis-list-duzenle{background:#2f5c8a;}
   .swipe-btn.fis-list-sil{background:#c0392b;}
@@ -1592,6 +1593,16 @@
     <div id="cekCikisTedarikciList" style="max-height:48vh;overflow-y:auto;"></div>
     <button type="button" id="cekCikisYeniTedarikciBtn" style="width:100%;text-align:center;padding:13px 12px;border:1.5px dashed var(--accent);border-radius:12px;background:none;font-weight:700;font-size:14px;color:var(--accent);cursor:pointer;margin-top:4px;">＋ Yeni Tedarikçi Ekle</button>
     <button id="cekCikisIptal" style="margin-top:12px;width:100%;padding:14px 0;border:none;border-radius:12px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">İptal</button>
+  </div>
+</div>
+
+<div class="overlay" id="bankaTahsilatSecOverlay" style="z-index:95;align-items:center;">
+  <div class="modal" style="padding-bottom:14px;border-radius:20px;max-height:80vh;overflow-y:auto;">
+    <h3 style="margin-bottom:4px;">Tahsilat — Cari Seç</h3>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 14px 0;" id="bankaTahsilatAciklama"></p>
+    <div id="bankaTahsilatMusteriList" style="max-height:48vh;overflow-y:auto;"></div>
+    <button type="button" id="bankaTahsilatYeniMusteriBtn" style="width:100%;text-align:center;padding:13px 12px;border:1.5px dashed var(--accent);border-radius:12px;background:none;font-weight:700;font-size:14px;color:var(--accent);cursor:pointer;margin-top:4px;">＋ Yeni Müşteri Ekle</button>
+    <button id="bankaTahsilatIptal" style="margin-top:12px;width:100%;padding:14px 0;border:none;border-radius:12px;background:#eef1f2;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;">İptal</button>
   </div>
 </div>
 
@@ -4186,6 +4197,7 @@ function renderBanka(){
       return `
         <div class="swipe-wrap">
           <div class="swipe-actions">
+            <button class="swipe-btn sip-list-tahsilat banka-tahsilat" data-idx="${idx}">Tahsilat</button>
             <button class="swipe-btn sip-list-duzenle banka-duzenle" data-idx="${idx}">Değiştir</button>
             <button class="swipe-btn sip-list-sil banka-sil" data-idx="${idx}">Sil</button>
           </div>
@@ -4216,6 +4228,9 @@ function renderBanka(){
       body.classList.toggle('hidden');
       header.querySelector('.kasa-ay-chevron').textContent = body.classList.contains('hidden') ? '▾' : '▴';
     };
+  });
+  list.querySelectorAll('.banka-tahsilat').forEach(btn=>{
+    btn.onclick = (e) => { e.stopPropagation(); openBankaTahsilatSec(parseInt(btn.dataset.idx, 10)); };
   });
   list.querySelectorAll('.banka-duzenle').forEach(btn=>{
     btn.onclick = (e) => { e.stopPropagation(); openBankaForm(parseInt(btn.dataset.idx, 10)); };
@@ -4258,6 +4273,54 @@ document.getElementById('bankaBilgiKapatBtn').onclick = () => { document.getElem
 document.getElementById('bankaBilgiOverlay').onclick = (e) => {
   if(e.target.id === 'bankaBilgiOverlay') document.getElementById('bankaBilgiOverlay').classList.remove('show');
 };
+
+let bankaTahsilatIdx = null;
+function openBankaTahsilatSec(idx){
+  bankaTahsilatIdx = idx;
+  const t = state.banka.transactions[idx];
+  const [main, cents] = fmtPlain(Math.abs(t.amount)).split(',');
+  document.getElementById('bankaTahsilatAciklama').textContent =
+    (t.desc ? t.desc + ' — ' : '') + main + ',' + cents + '₺ tutarındaki hareketi hangi müşterinin cari hesabına tahsilat olarak işleyelim?';
+  const listEl = document.getElementById('bankaTahsilatMusteriList');
+  if(!state.cari.length){
+    listEl.innerHTML = '<div class="empty-tx">Müşteri kaydı yok</div>';
+  } else {
+    listEl.innerHTML = state.cari.map(c=>{
+      const harf = (c.name || '?').trim().charAt(0).toUpperCase();
+      return `<button type="button" class="banka-tahsilat-musteri-btn" data-id="${c.id}" style="width:100%;display:flex;align-items:center;gap:10px;text-align:left;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-weight:600;font-size:14px;color:var(--ink);cursor:pointer;margin-bottom:8px;">
+        <span style="width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;background:linear-gradient(135deg,#5b8bf5,#2e56c9);">${harf}</span>
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.name}</span>
+      </button>`;
+    }).join('');
+    listEl.querySelectorAll('.banka-tahsilat-musteri-btn').forEach(btn=>{
+      btn.onclick = () => {
+        const c = state.cari.find(x=>x.id===btn.dataset.id);
+        const adi = c ? c.name : '';
+        openConfirm('Tahsilat Onayı', main + ',' + cents + '₺ ' + adi + ' cari hesabına tahsilat olarak işlenecek. Onaylıyor musunuz?', () => {
+          bankaTahsilatiUygula(btn.dataset.id);
+        }, 'Evet, İşle');
+      };
+    });
+  }
+  document.getElementById('bankaTahsilatSecOverlay').classList.add('show');
+}
+function bankaTahsilatiUygula(cariId){
+  const t = state.banka.transactions[bankaTahsilatIdx];
+  const c = state.cari.find(x=>x.id===cariId);
+  if(!t || !c) return;
+  c.transactions.push({ type:'TAHSİLAT', desc: t.desc ? ('Banka: ' + t.desc) : 'Banka havalesi', amount: Math.abs(t.amount), date: t.date });
+  t.desc = (t.desc ? t.desc + ' — ' : '') + c.name + ' cari hesabına işlendi';
+  save();
+  document.getElementById('bankaTahsilatSecOverlay').classList.remove('show');
+  renderBanka();
+}
+document.getElementById('bankaTahsilatYeniMusteriBtn').onclick = () => {
+  document.getElementById('bankaTahsilatSecOverlay').classList.remove('show');
+  openYeniCari();
+  if(document.getElementById('ncTurAlici')) document.getElementById('ncTurAlici').click();
+};
+document.getElementById('bankaTahsilatIptal').onclick = () => { document.getElementById('bankaTahsilatSecOverlay').classList.remove('show'); };
+document.getElementById('bankaTahsilatSecOverlay').onclick = (e) => { if(e.target === document.getElementById('bankaTahsilatSecOverlay')) document.getElementById('bankaTahsilatSecOverlay').classList.remove('show'); };
 
 let bankaEditIdx = null;
 let bankaSegTur = 'CEK';
